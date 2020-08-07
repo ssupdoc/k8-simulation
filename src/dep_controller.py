@@ -15,8 +15,11 @@ class DepController:
 		print("depController start")
 		while self.running:
 			with self.apiServer.etcdLock:
-				#TODO: implementation reqd
-				print("depController Implementation")
+				cur_deployment_list = self.apiServer.GetDeployments()
+				for deployment in cur_deployment_list: # For each deployment check and add replicas if necessary
+					while deployment.currentReplicas < deployment.expectedReplicas:
+						self.apiServer.CreatePod(deployment.deploymentLabel)
+						deployment.currentReplicas += 1
 
 			time.sleep(self.time)
 		print("DepContShutdown")

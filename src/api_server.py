@@ -21,6 +21,12 @@ class APIServer:
 	def GetDeployments(self):
 		return self.etcd.deploymentList
 
+#	GetDeploymentByLabel method returns a deployment queried by deploymentLabel	
+	def GetDeploymentByLabel(self, label):
+		deployment_list = self.GetDeployments()
+		return next(filter(lambda deployment: deployment.deploymentLabel == label, deployment_list), None)
+		
+
 #	GetWorkers method returns the list of WorkerNodes stored in etcd
 	def GetWorkers(self):
 		return self.etcd.nodeList
@@ -81,7 +87,12 @@ class APIServer:
 
 # CreatePod finds the resource allocations associated with a deployment and creates a pod using those metrics
 	def CreatePod(self, deploymentLabel):
-		pass
+		deployment = self.GetDeploymentByLabel(deploymentLabel)
+		if deployment is not None:
+			podName = deploymentLabel + '-pod-' + str(deployment.currentReplicas + 1)
+			pod = Pod(podName, deployment.cpuCost, deploymentLabel)
+			self.etcd.pendingPodList.append(pod)
+		
 
 # GetPod returns the pod object stored in the internal podList of a WorkerNode
 	def GetPod(self, endPoint):
