@@ -13,9 +13,10 @@ class Scheduler(threading.Thread):
 		self.time = LOOPTIME
 	
 	def __call__(self):
-	print("Scheduler start")
+		print("Scheduler start")
 		while self.running:
 			with self.apiServer.etcdLock:
+
 
 			time.sleep(self.time)
 		print("SchedShutdown")

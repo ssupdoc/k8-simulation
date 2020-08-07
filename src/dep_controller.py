@@ -12,8 +12,10 @@ class DepController:
 		self.time = LOOPTIME
 	
 	def __call__(self):
-	print("depController start")
+		print("depController start")
 		while self.running:
 			with self.apiServer.etcdLock:
+
+
 			time.sleep(self.time)
 		print("DepContShutdown")

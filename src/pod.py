@@ -12,12 +12,12 @@ import threading
 class Pod:
 	def __init__(self, NAME, ASSIGNED_CPU, ASSIGNED_MEM, AVAILABLE_CPU, AVAILABLE_MEM, DEPLABEL):
 		self.podName = NAME
-		self.available_cpu = assigned_cpu
+		self.available_cpu = ASSIGNED_CPU
 		self.deploymentLabel = DEPLABEL
 		self.status = "PENDING"
 		self.crash = threading.Event()
 		self.pool = ThreadPoolExecutor(max_workers=ASSIGNED_CPU)
 
-	def HandleRequest(EXECTIME):
-		handling = pool.submit(crash.wait(timeout=EXECTIME))	
+	def HandleRequest(self, EXECTIME):
+		handling = self.pool.submit(self.crash.wait(timeout=EXECTIME))	
 		
