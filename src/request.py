@@ -1,4 +1,4 @@
-from api_server import APIServer
+# from api_server import APIServer
 
 #Requests stress Pod resources for a given period of time to simulate load
 #deploymentLabel is the Deployment that the request is beings sent to

@@ -13,6 +13,8 @@ class ReqHandler:
 		while self.running:
 			self.apiServer.requestWaiting.wait()
 			with self.apiServer.etcdLock:
+				#TODO: implementation reqd
+				print("reqHandler Implementation")
 			
 			self.apiServer.requestWaiting.clear()
 		print("ReqHandlerShutdown")

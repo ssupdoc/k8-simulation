@@ -16,7 +16,8 @@ class Scheduler(threading.Thread):
 		print("Scheduler start")
 		while self.running:
 			with self.apiServer.etcdLock:
-
+				#TODO: implementation reqd
+				print("Scheduler Implementation")
 
 			time.sleep(self.time)
 		print("SchedShutdown")
