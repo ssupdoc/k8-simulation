@@ -34,7 +34,7 @@ instructions = open("instructions.txt", "r")
 commands = instructions.readlines()
 for command in commands:
 	cmdAttributes = command.split()
-	with etcdLock:
+	with apiServer.etcdLock:
 		if cmdAttributes[0] == 'Deploy':
 			apiServer.CreateDeployment(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'AddNode':
@@ -45,6 +45,8 @@ for command in commands:
 			apiServer.RemoveDeployment(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'ReqIn':
 			apiServer.PushReq(cmdAttributes[1:])
+		elif cmdAttributes[0] == 'Sleep':
+			time.sleep(int(cmdAttributes[1]))
 	time.sleep(5)
 time.sleep(5)
 print("Shutting down threads")

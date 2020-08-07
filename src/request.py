@@ -5,7 +5,8 @@ from api_server import APIServer
 #cpuCost is the number of threads that the request will use on a pod
 #duration is how long the request will use those resource for before completing
 class Request:
-	def __init__(self, APISERVER, INFOLIST):
+	# def __init__(self, APISERVER, INFOLIST): // TODO: Require some clarity on why APISERVER is used
+	def __init__(self, INFOLIST):
 		self.deploymentLabel = INFOLIST[0]
-		self.cpuCost = INFOLIST[1]
+		self.podLabel = INFOLIST[1]
 		self.execTime = INFOLIST[3]
