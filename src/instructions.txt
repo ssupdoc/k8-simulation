@@ -1,3 +1,4 @@
 AddNode nodeA 5
 AddNode nodeB 10
 AddNode nodeC 15
+Deploy deploymentA 3 4

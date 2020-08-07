@@ -19,5 +19,5 @@ class Pod:
 		self.pool = ThreadPoolExecutor(max_workers=ASSIGNED_CPU)
 
 	def HandleRequest(self, EXECTIME):
-		handling = self.pool.submit(self.crash.wait(timeout=EXECTIME))	
+		handling = self.pool.submit(self.crash.wait(timeout=EXECTIME))
 		

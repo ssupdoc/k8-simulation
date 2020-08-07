@@ -47,10 +47,20 @@ class APIServer:
 		cur_worker_list.append(worker)
 		self.PrintEtcdWorkerList("ETCD worker list after")
 
+	def PrintEtcdDeploymentList(self, label):
+		deployment_list = self.GetDeployments()
+		print(label)
+		for deployment in deployment_list:
+			print(deployment.__dict__)
+
 
 # CreateDeployment creates a Deployment object from a list of arguments and adds it to the etcd deploymentList
 	def CreateDeployment(self, info):
-		pass
+		self.PrintEtcdDeploymentList("ETCD deployment list before")
+		deployment = Deployment(info)
+		cur_deployment_list = self.GetDeployments()
+		cur_deployment_list.append(deployment)
+		self.PrintEtcdDeploymentList("ETCD deployment list after")
 
 # RemoveDeployment deletes the associated Deployment object from etcd and sets the status of all associated pods to 'TERMINATING'
 	def RemoveDeployment(self, deploymentLabel):
