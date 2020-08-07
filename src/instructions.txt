@@ -1,0 +1,3 @@
+AddNode nodeA 5
+AddNode nodeB 10
+AddNode nodeC 15
