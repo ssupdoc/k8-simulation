@@ -12,8 +12,8 @@ import threading
 class Pod:
 	def __init__(self, NAME, ASSIGNED_CPU, DEPLABEL):
 		self.podName = NAME
-		self.available_cpu = ASSIGNED_CPU
-		self.assigned_cpu = ASSIGNED_CPU
+		self.available_cpu = int(ASSIGNED_CPU)
+		self.assigned_cpu = int(ASSIGNED_CPU)
 		self.deploymentLabel = DEPLABEL
 		self.status = "PENDING"
 		self.crash = threading.Event()
@@ -22,3 +22,5 @@ class Pod:
 	def HandleRequest(self, EXECTIME):
 		handling = self.pool.submit(self.crash.wait(timeout=EXECTIME))
 		
+	def SetStatus(self, status):
+		self.status = status

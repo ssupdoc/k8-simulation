@@ -12,6 +12,10 @@ class WorkerNode:
 
 	def __init__(self, INFOLIST):
 		self.label = INFOLIST[0]
-		self.assigned_cpu = INFOLIST[1]
-		self.available_cpu = self.assigned_cpu
+		self.assigned_cpu = int(INFOLIST[1])
+		self.available_cpu = int(self.assigned_cpu)
 		self.status = 'UP'
+
+	def AllocateCpu(self, cpuCost):
+		if cpuCost <= self.available_cpu:
+			self.available_cpu -= cpuCost

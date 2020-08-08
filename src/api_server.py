@@ -75,7 +75,9 @@ class APIServer:
 # CreateEndpoint creates an EndPoint object using information from a provided Pod and Node and appends it
 # to the endPointList in etcd
 	def CreateEndPoint(self, pod, worker):
-		pass
+		end_point = EndPoint(pod, worker)
+		cur_end_point_list = self.GetEndPoints()
+		cur_end_point_list.append(end_point)
 
 # CheckEndPoint checks that the associated pod is still present on the expected WorkerNode
 	def CheckEndPoint(self, endPoint):
@@ -94,9 +96,9 @@ class APIServer:
 			self.etcd.pendingPodList.append(pod)
 		
 
-# GetPod returns the pod object stored in the internal podList of a WorkerNode
+# GetPod returns the pod object
 	def GetPod(self, endPoint):
-		pass
+		return endPoint.pod
 
 # TerminatePod finds the pod associated with a given EndPoint and sets it's status to 'TERMINATING'
 # No new requests will be sent to a pod marked 'TERMINATING'. Once its current requests have been handled,
@@ -109,9 +111,21 @@ class APIServer:
 	def CrashPod(self, depLabel):
 		pass
 
-# AssignNode takes a pod in the pendingPodList and transfers it to the internal podList of a specified WorkerNode
+# CheckPod finds if a pod has the req cpu cost
+	def CheckPod(self, pod, cpuCost):
+		return pod.assigned_cpu >= cpuCost
+
+# FindPodsFromPending returns pods in a pending list that can accomodate a certain CPU cost
+	def FindPodsFromPending(self, cpuCost):
+		cur_pending_list = self.GetPending()
+		return list(filter(lambda pod: pod.status == "PENDING" and pod.assigned_cpu >= cpuCost, cur_pending_list))
+
+# AssignNode takes a pod in the pendingPodList and transfers it to the runningPodList
 	def AssignNode(self, pod, worker):
-		pass
+		self.etcd.pendingPodList.remove(pod)
+		self.etcd.runningPodList.append(pod)
+		worker.AllocateCpu(pod.assigned_cpu)
+		pod.SetStatus("RUNNING")
 
 #	pushReq adds the incoming request to the handling queue
 	def PushReq(self, info):

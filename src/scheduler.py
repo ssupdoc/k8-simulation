@@ -16,8 +16,22 @@ class Scheduler(threading.Thread):
 		print("Scheduler start")
 		while self.running:
 			with self.apiServer.etcdLock:
-				#TODO: implementation reqd
-				print("Scheduler Implementation")
+				pending_pod_list = self.apiServer.GetPending()
+				worker_list = self.apiServer.GetWorkers()
+				suitable_worker_node = None
+				pod = None
+				for pending_pod in pending_pod_list:
+					suitable_worker_node = next(filter(lambda node: node.available_cpu >= pending_pod.assigned_cpu, worker_list), None)
+					if suitable_worker_node is not None:
+						pod = pending_pod
+						break
+				if pod is not None and suitable_worker_node is not None:
+					print("~~~Creating endpoint starts~~~")
+					print(pod.podName, pod.deploymentLabel, suitable_worker_node.label)
+					self.apiServer.CreateEndPoint(pod, suitable_worker_node)
+					print("~~~Creating endpoint ends~~~")
+					self.apiServer.AssignNode(pod, suitable_worker_node)	
+						
 
 			time.sleep(self.time)
 		print("SchedShutdown")

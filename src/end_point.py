@@ -6,8 +6,8 @@
 
 class EndPoint:
 
-	def __init__(self, POD, DEPLABEL, NODE):
+	def __init__(self, POD, NODE):
 		self.pod = POD
-		self.deploymentLabel = DEPLABEL
+		self.deploymentLabel = self.pod.deploymentLabel
 		self.node = NODE
 		flag = 0
