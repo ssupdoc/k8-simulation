@@ -84,6 +84,10 @@ class APIServer:
 		cur_end_point_list = self.GetEndPoints()
 		cur_end_point_list.append(end_point)
 
+# RemoveEndPoint removes end point from end point list
+	def RemoveEndPoint(self, end_point):
+		self.etcd.endPointList.remove(end_point)
+
 # CheckEndPoint checks that the associated pod is still present on the expected WorkerNode
 	def CheckEndPoint(self, endPoint):
 		return endPoint.pod and endPoint.pod.IsRunning()
@@ -123,6 +127,11 @@ class APIServer:
 			print("Crashing pod " + end_point.pod.podName)
 			end_point.pod.crash.set()
 			end_point.pod.SetStatus("FAILED")
+
+# MoveToPending moves pod to pending
+	def MoveToPending(self, pod):
+		self.etcd.runningPodList.remove(pod)
+		self.etcd.pendingPodList.append(pod)
 
 # CheckPod finds if a pod has the req cpu cost
 	def CheckPod(self, pod, cpuCost):

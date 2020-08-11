@@ -46,5 +46,14 @@ class Pod:
 	def IsTerminating(self):
 		return self.status == "TERMINATING"
 
+	def IsFailed(self):
+		return self.status == "FAILED"
+
 	def HasAvailableCPU(self):
 		return self.available_cpu > 0
+
+	def Refresh(self):
+		self.SetStatus("PENDING")
+		self.available_cpu = self.assigned_cpu
+		self.crash.clear()
+		self.pool = ThreadPoolExecutor(max_workers=self.assigned_cpu)
