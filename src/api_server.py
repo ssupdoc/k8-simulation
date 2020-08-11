@@ -31,9 +31,12 @@ class APIServer:
 	def GetWorkers(self):
 		return self.etcd.nodeList
 
-#	GetPending method returns the list of PendingPods stored in etcd
-	def GetPending(self):
+#	GetPendingPodList method returns the list of PendingPods stored in etcd
+	def GetPendingPodList(self):
 		return self.etcd.pendingPodList
+
+	def GetRunningPodList(self):
+		return self.etcd.runningPodList
 
 #	GetEndPoints method returns the list of EndPoints stored in etcd
 	def GetEndPoints(self):
@@ -47,11 +50,13 @@ class APIServer:
 
 # CreateWorker creates a WorkerNode from a list of arguments and adds it to the etcd nodeList
 	def CreateWorker(self, info):
+		print("\n\n\n")
 		self.PrintEtcdWorkerList("ETCD worker list before")
 		worker = WorkerNode(info)
 		cur_worker_list = self.GetWorkers()
 		cur_worker_list.append(worker)
 		self.PrintEtcdWorkerList("ETCD worker list after")
+		print("\n\n\n")
 
 	def PrintEtcdDeploymentList(self, label):
 		deployment_list = self.GetDeployments()
@@ -81,11 +86,14 @@ class APIServer:
 
 # CheckEndPoint checks that the associated pod is still present on the expected WorkerNode
 	def CheckEndPoint(self, endPoint):
-		pass
+		return endPoint.pod and endPoint.pod.IsRunning()
 
 # GetEndPointsByLabel returns a list of EndPoints associated with a given deployment
 	def GetEndPointsByLabel(self, deploymentLabel):
-		pass
+		cur_end_point_list = self.GetEndPoints()
+		deployment_end_points = list(filter(lambda end_point: end_point.deploymentLabel == deploymentLabel, cur_end_point_list))
+		return deployment_end_points
+
 
 # CreatePod finds the resource allocations associated with a deployment and creates a pod using those metrics
 	def CreatePod(self, deploymentLabel):
@@ -109,7 +117,12 @@ class APIServer:
 # CrashPod finds a pod from a given deployment and sets its status to 'FAILED'
 # Any resource utilisation on the pod will be reset to the base 0
 	def CrashPod(self, depLabel):
-		pass
+		end_point_list = self.GetEndPointsByLabel(depLabel)
+		end_point = next(filter(lambda end_point: end_point.pod.IsRunning(), end_point_list), None)
+		if end_point:
+			print("Crashing pod " + end_point.pod.podName)
+			end_point.pod.crash.set()
+			end_point.pod.SetStatus("FAILED")
 
 # CheckPod finds if a pod has the req cpu cost
 	def CheckPod(self, pod, cpuCost):
@@ -117,7 +130,7 @@ class APIServer:
 
 # FindPodsFromPending returns pods in a pending list that can accomodate a certain CPU cost
 	def FindPodsFromPending(self, cpuCost):
-		cur_pending_list = self.GetPending()
+		cur_pending_list = self.GetPendingPodList()
 		return list(filter(lambda pod: pod.status == "PENDING" and pod.assigned_cpu >= cpuCost, cur_pending_list))
 
 # AssignNode takes a pod in the pendingPodList and transfers it to the runningPodList
@@ -129,11 +142,19 @@ class APIServer:
 
 #	pushReq adds the incoming request to the handling queue
 	def PushReq(self, info):
-		self.etcd.reqCreator.submit(self.reqHandle, info)
+		self.etcd.reqCreator.submit(self.ReqHandle, info)
 
 
 # Creates requests and notifies the handler of request to be dealt with
 
-	def reqHandle(self, info):
+	def ReqHandle(self, info):
 		self.etcd.pendingReqs.append(Request(info))
 		self.requestWaiting.set()
+	
+	def DiscardRequest(self, req):
+		print("\n~~~Discarding " + req.status + " request " + req.label + "(" + req.deploymentLabel + ")~~~\n")
+		self.etcd.pendingReqs.remove(req)
+
+# GetPendingRequests returns pending requests
+	def GetPendingRequests(self):
+		return self.etcd.pendingReqs

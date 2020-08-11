@@ -20,7 +20,31 @@ class Pod:
 		self.pool = ThreadPoolExecutor(max_workers=ASSIGNED_CPU)
 
 	def HandleRequest(self, EXECTIME):
+		self.available_cpu-=1
 		handling = self.pool.submit(self.crash.wait(timeout=EXECTIME))
+		self.available_cpu+=1
+		if self.crash.isSet():
+			self.SetStatus("FAILED")
+		print('\n\n\n###Pod after handling req starts####')
+		print('pod: ', self.podName)
+		print('available CPU: ', self.available_cpu)
+		print('status: ', self.status)
+		print('Crash: ', handling._state)
+		print('Actual crash: ',self.crash.isSet())
+		print('###Pod after handling req ends###\n\n\n')
+
+
+		# if handling._state is not "FINISHED": #Crash
+		# 	self.SetStatus("FAILED")
 		
 	def SetStatus(self, status):
 		self.status = status
+
+	def IsRunning(self):
+		return self.status == 'RUNNING'
+	
+	def IsTerminating(self):
+		return self.status == "TERMINATING"
+
+	def HasAvailableCPU(self):
+		return self.available_cpu > 0

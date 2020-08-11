@@ -17,7 +17,7 @@ class NodeController:
 		while self.running:
 			with self.apiServer.etcdLock:
 				#TODO: implementation reqd
-				print("NodeController Implementation")
-
+				pass
 			time.sleep(self.time)
+
 		print("NodeContShutdown")

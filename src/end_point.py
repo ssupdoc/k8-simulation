@@ -1,13 +1,11 @@
 #EndPoint objects associate a Pod with a Deployment and a Node.
-#podName is the name of the Pod.
+#pod is the Pod.
 #deploymentLabel is the label of the Deployment.
-#nodeLabel is the label of the Node.
-#flag is the priority of the endpoint for request routing [0,1].
+#node is the Node.
 
 class EndPoint:
 
-	def __init__(self, POD, NODE):
-		self.pod = POD
+	def __init__(self, pod, node):
+		self.pod = pod
 		self.deploymentLabel = self.pod.deploymentLabel
-		self.node = NODE
-		flag = 0
+		self.node = node
