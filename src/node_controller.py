@@ -16,17 +16,17 @@ class NodeController:
 		print("NodeController start")
 		while self.running:
 			with self.apiServer.etcdLock:
-				#TODO: implementation reqd
 				end_point_list = self.apiServer.GetEndPoints()
-				obsolete_end_point = next(filter(lambda end_point: end_point.pod.IsFailed(), end_point_list), None)
+				obsolete_end_point = next(filter(lambda end_point: end_point.pod.IsDown(), end_point_list), None)
 				if obsolete_end_point:
 					pod = obsolete_end_point.pod
-					pod.Refresh()
 
 					node = obsolete_end_point.node
 					node.deallocateCpu(pod.assigned_cpu)
 
-					self.apiServer.MoveToPending(pod)
+					if pod.IsFailed():
+						self.apiServer.MoveToPending(pod)
+						pod.Refresh()
 
 					self.apiServer.RemoveEndPoint(obsolete_end_point)
 

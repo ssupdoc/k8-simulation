@@ -17,9 +17,24 @@ class DepController:
 			with self.apiServer.etcdLock:
 				cur_deployment_list = self.apiServer.GetDeployments()
 				for deployment in cur_deployment_list: # For each deployment check and add replicas if necessary
-					while deployment.currentReplicas < deployment.expectedReplicas:
+					if deployment.expectedReplicas == 0:
+						end_point_list = self.apiServer.GetEndPointsByLabel(deployment.deploymentLabel)
+						for end_point in end_point_list:
+							pod = end_point.pod
+							running_pod_list = self.apiServer.GetRunningPodList()
+							if pod in running_pod_list and pod.IsIdle():
+								print("\n\n\n&&& Deleting Pod " + pod.podName + " &&&")
+								pod.pool.shutdown()
+								running_pod_list.remove(pod)
+								self.CleanupDeploymentList(deployment, running_pod_list, cur_deployment_list)
+					while deployment.expectedReplicas and deployment.currentReplicas < deployment.expectedReplicas:
 						self.apiServer.CreatePod(deployment.deploymentLabel)
 						deployment.currentReplicas += 1
 
 			time.sleep(self.time)
 		print("DepContShutdown")
+
+	def CleanupDeploymentList(self, deployment, running_pod_list, deployment_list):
+		does_pod_exist_for_deployment  = any(pod.deploymentLabel == deployment.deploymentLabel for pod in running_pod_list)
+		if not does_pod_exist_for_deployment:
+			deployment_list.remove(deployment)

@@ -48,9 +48,15 @@ class Pod:
 
 	def IsFailed(self):
 		return self.status == "FAILED"
+	
+	def IsDown(self):
+		return self.status == 'TERMINATING' or self.status == 'FAILED'
 
 	def HasAvailableCPU(self):
 		return self.available_cpu > 0
+
+	def IsIdle(self):
+		return self.available_cpu == self.assigned_cpu
 
 	def Refresh(self):
 		self.SetStatus("PENDING")
