@@ -12,3 +12,9 @@ class Deployment:
 		self.currentReplicas = 0
 		self.expectedReplicas = int(INFOLIST[1])
 		self.cpuCost = int(INFOLIST[2])
+
+	def RemoveReplicas(self, replicas):
+		self.currentReplicas -= replicas
+		if self.currentReplicas < 0:
+			self.currentReplicas = 0
+		print(f"\n\n!!!Replicas removed from {self.deploymentLabel} Current replicas - {self.currentReplicas} Expected replicas - {self.expectedReplicas}")

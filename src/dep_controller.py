@@ -23,9 +23,9 @@ class DepController:
 							pod = end_point.pod
 							running_pod_list = self.apiServer.GetRunningPodList()
 							if pod in running_pod_list and pod.IsIdle():
-								print("\n\n\n&&& Deleting Pod " + pod.podName + " &&&")
-								pod.pool.shutdown()
+								print("\n\n!!!Deleting Pod " + pod.podName + " !!!")
 								running_pod_list.remove(pod)
+								deployment.RemoveReplicas(1)
 								self.CleanupDeploymentList(deployment, running_pod_list, cur_deployment_list)
 					while deployment.expectedReplicas and deployment.currentReplicas < deployment.expectedReplicas:
 						self.apiServer.CreatePod(deployment.deploymentLabel)
@@ -36,5 +36,9 @@ class DepController:
 
 	def CleanupDeploymentList(self, deployment, running_pod_list, deployment_list):
 		does_pod_exist_for_deployment  = any(pod.deploymentLabel == deployment.deploymentLabel for pod in running_pod_list)
+		print(f"\n\n!!!Cleaning up deployment {deployment.deploymentLabel}: Pods exist - {does_pod_exist_for_deployment}!!!")
 		if not does_pod_exist_for_deployment:
 			deployment_list.remove(deployment)
+			print(f"!!!Deployment {deployment.deploymentLabel} deleted!!!")
+		else:
+			print(f"XXXUnable to delete deployment {deployment.deploymentLabel}XXX")

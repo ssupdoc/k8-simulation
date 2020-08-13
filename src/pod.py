@@ -12,30 +12,28 @@ import threading
 class Pod:
 	def __init__(self, NAME, ASSIGNED_CPU, DEPLABEL):
 		self.podName = NAME
-		self.available_cpu = int(ASSIGNED_CPU)
+		self.available_cpu = 0
 		self.assigned_cpu = int(ASSIGNED_CPU)
 		self.deploymentLabel = DEPLABEL
 		self.status = "PENDING"
 		self.crash = threading.Event()
 		self.pool = ThreadPoolExecutor(max_workers=ASSIGNED_CPU)
 
-	def HandleRequest(self, EXECTIME):
-		self.available_cpu-=1
-		handling = self.pool.submit(self.crash.wait(timeout=EXECTIME))
-		self.available_cpu+=1
-		if self.crash.isSet():
-			self.SetStatus("FAILED")
-		print('\n\n\n###Pod after handling req starts####')
-		print('pod: ', self.podName)
-		print('available CPU: ', self.available_cpu)
-		print('status: ', self.status)
-		print('Crash: ', handling._state)
-		print('Actual crash: ',self.crash.isSet())
-		print('###Pod after handling req ends###\n\n\n')
-
-
-		# if handling._state is not "FINISHED": #Crash
-		# 	self.SetStatus("FAILED")
+	def HandleRequest(self, req):
+		if self.available_cpu > 0:
+			self.available_cpu-=1
+			print(f"\n\n***Request {req.label} is handled by {self.podName}***")
+			print(f"Pod details: Status - {self.status} Assigned - {self.assigned_cpu} Available - {self.available_cpu}")
+			self.pool.submit(self.crash.wait(timeout=req.execTime))
+			self.available_cpu+=1
+			if self.crash.isSet():
+				self.SetStatus("FAILED")
+				print(f"\n\n!!!Request {req.label} Failed by {self.podName} as it crashed!!!")
+			else:
+				print(f"\n\n***Request {req.label} Completed by {self.podName}***")
+			print(f"Pod details: Status - {self.status} Assigned - {self.assigned_cpu} Available - {self.available_cpu}")
+		else:
+			print(f"!!!Pod {self.podName} cannot handle request {req.label} due to non-availability of CPUs!!!")
 		
 	def SetStatus(self, status):
 		self.status = status
@@ -50,7 +48,7 @@ class Pod:
 		return self.status == "FAILED"
 	
 	def IsDown(self):
-		return self.status == 'TERMINATING' or self.status == 'FAILED'
+		return (self.status == 'TERMINATING') or (self.status == 'FAILED')
 
 	def HasAvailableCPU(self):
 		return self.available_cpu > 0
@@ -60,6 +58,9 @@ class Pod:
 
 	def Refresh(self):
 		self.SetStatus("PENDING")
-		self.available_cpu = self.assigned_cpu
+		self.available_cpu = 0
 		self.crash.clear()
-		self.pool = ThreadPoolExecutor(max_workers=self.assigned_cpu)
+	
+	def Run(self):
+		self.available_cpu = self.assigned_cpu
+		self.SetStatus("RUNNING")

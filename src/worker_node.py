@@ -19,8 +19,10 @@ class WorkerNode:
 	def AllocateCpu(self, cpuCost):
 		if cpuCost <= self.available_cpu:
 			self.available_cpu -= cpuCost
+		print(f"***Worker node {self.label} allocated: Assigned - {self.assigned_cpu} Available - {self.available_cpu}***")
 
 	def deallocateCpu(self, cpuCost):
 		self.available_cpu += cpuCost
 		if self.available_cpu > self.assigned_cpu:
 			self.available_cpu = self.assigned_cpu
+		print(f"***Worker node {self.label} deallocated: Assigned - {self.assigned_cpu} Available - {self.available_cpu}***")
