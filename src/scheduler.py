@@ -27,7 +27,7 @@ class Scheduler(threading.Thread):
 						self.api_server.CreateEndPoint(pending_pod, suitable_worker_node)
 						self.api_server.AssignNode(pending_pod, suitable_worker_node)
 					else:
-						print(f"\n\n^^^No worker available for {pending_pod.podName}. Scheduled for retrying^^^")		
+						print(f"\n\n^^^No worker available for {pending_pod.pod_name}. Scheduled for retrying^^^")		
 			time.sleep(self.time)
 
 		print("SchedShutdown")

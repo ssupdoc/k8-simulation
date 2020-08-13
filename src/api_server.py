@@ -119,8 +119,8 @@ class APIServer:
 	def CreatePod(self, deployment_label):
 		deployment = self.GetDeploymentByLabel(deployment_label)
 		if deployment is not None:
-			podName = deployment_label + '-pod-' + str(deployment.current_replicas + 1)
-			pod = Pod(podName, deployment.cpu_cost, deployment_label)
+			pod_name = deployment_label + '-pod-' + str(deployment.current_replicas + 1)
+			pod = Pod(pod_name, deployment.cpu_cost, deployment_label)
 			self.etcd.pending_pod_list.append(pod)
 		
 #	GetPod returns the pod object
@@ -138,7 +138,7 @@ class APIServer:
 	def TerminatePod(self, end_point):
 			end_point.pod.SetStatus("TERMINATING")
 			end_point.pod.pool.shutdown()
-			print(f"\n\n!!!Pod {end_point.pod.podName} set to terminate!!!")
+			print(f"\n\n!!!Pod {end_point.pod.pod_name} set to terminate!!!")
 
 #	CrashPod finds a pod from a given deployment and sets its status to 'FAILED'
 #	Any resource utilisation on the pod will be reset to the base 0
@@ -146,7 +146,7 @@ class APIServer:
 		end_point_list = self.GetEndPointsByLabel(depLabel)
 		end_point = next(filter(lambda end_point: end_point.pod.IsRunning(), end_point_list), None)
 		if end_point:
-			print("\n\n!!!Crashing pod " + end_point.pod.podName + "!!!")
+			print("\n\n!!!Crashing pod " + end_point.pod.pod_name + "!!!")
 			end_point.pod.crash.set()
 			end_point.pod.SetStatus("FAILED")
 
@@ -179,12 +179,12 @@ class APIServer:
 		end_point = EndPoint(pod, worker)
 		cur_end_point_list = self.GetEndPoints()
 		cur_end_point_list.append(end_point)
-		print(f"\n\n***End point created for {pod.podName} and {worker.label} for {pod.deployment_label}***")
+		print(f"\n\n***End point created for {pod.pod_name} and {worker.label} for {pod.deployment_label}***")
 
 #	RemoveEndPoint removes end point from end point list
 	def RemoveEndPoint(self, end_point):
 		self.etcd.end_point_list.remove(end_point)
-		print(f"\n\n!!!Endpoint removed between {end_point.pod.podName} and {end_point.node.label}")
+		print(f"\n\n!!!Endpoint removed between {end_point.pod.pod_name} and {end_point.node.label}")
 
 #	CheckEndPoint checks that the associated pod is still present on the expected WorkerNode
 	def CheckEndPoint(self, endPoint):
@@ -203,7 +203,7 @@ class APIServer:
 		self.etcd.running_pod_list.append(pod)
 		worker.AllocateCpu(pod.assigned_cpu)
 		pod.Run()
-		print(f"*** Pod {pod.podName} is running on worker node {worker.label}***")
+		print(f"*** Pod {pod.pod_name} is running on worker node {worker.label}***")
 
 #	AddReq adds the incoming request to the handling queue
 	def AddReq(self, info):

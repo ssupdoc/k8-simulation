@@ -23,7 +23,7 @@ class DepController:
 						deployment_pod_list = self.api_server.GetRunningPodsByDeployment(deployment.deployment_label)
 						for pod in deployment_pod_list:
 							if pod.IsIdle():
-								print("\n\n!!!Deleting Pod " + pod.podName + " !!!")
+								print("\n\n!!!Deleting Pod " + pod.pod_name + " !!!")
 								self.api_server.RemoveRunningPod(pod)
 								self.api_server.RemoveReplicasFromDeployment(deployment, 1)
 								self.api_server.CleanupDeployment(deployment)

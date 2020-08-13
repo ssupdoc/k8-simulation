@@ -11,7 +11,7 @@ import threading
 #the pool is the threads that are available for request handling on the pod
 class Pod:
 	def __init__(self, name, assigned_cpu, deployment_label):
-		self.podName = name
+		self.pod_name = name
 		self.available_cpu = 0
 		self.assigned_cpu = int(assigned_cpu)
 		self.deployment_label = deployment_label
@@ -22,18 +22,18 @@ class Pod:
 	def HandleRequest(self, req):
 		if self.available_cpu > 0:
 			self.available_cpu-=1
-			print(f"\n\n***Request {req.label} is handled by {self.podName}***")
+			print(f"\n\n***Request {req.label} is handled by {self.pod_name}***")
 			print(f"Pod details: Status - {self.status} Assigned - {self.assigned_cpu} Available - {self.available_cpu}")
 			self.pool.submit(self.crash.wait(timeout=req.exec_time))
 			self.available_cpu+=1
 			if self.crash.isSet():
 				self.SetStatus("FAILED")
-				print(f"\n\n!!!Request {req.label} Failed by {self.podName} as it crashed!!!")
+				print(f"\n\n!!!Request {req.label} Failed by {self.pod_name} as it crashed!!!")
 			else:
-				print(f"\n\n***Request {req.label} Completed by {self.podName}***")
+				print(f"\n\n***Request {req.label} Completed by {self.pod_name}***")
 			print(f"Pod details: Status - {self.status} Assigned - {self.assigned_cpu} Available - {self.available_cpu}")
 		else:
-			print(f"!!!Pod {self.podName} cannot handle request {req.label} due to non-availability of CPUs!!!")
+			print(f"!!!Pod {self.pod_name} cannot handle request {req.label} due to non-availability of CPUs!!!")
 		
 	def SetStatus(self, status):
 		self.status = status
