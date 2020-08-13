@@ -40,9 +40,9 @@ for command in commands:
 		elif cmdAttributes[0] == 'AddNode':
 			apiServer.CreateWorker(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'CrashPod':
-			apiServer.CrashPod(cmdAttributes[1:])
+			apiServer.CrashPod(cmdAttributes[1])
 		elif cmdAttributes[0] == 'DeleteDeployment':
-			apiServer.RemoveDeployment(cmdAttributes[1:])
+			apiServer.RemoveDeployment(cmdAttributes[1])
 		elif cmdAttributes[0] == 'ReqIn':
 			apiServer.PushReq(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'Sleep':
