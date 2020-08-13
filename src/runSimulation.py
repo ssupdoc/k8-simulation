@@ -14,49 +14,49 @@ _nodeCtlLoop = 5
 _depCtlLoop = 5
 _scheduleCtlLoop =5
 
-apiServer = APIServer()
-depController = DepController(apiServer, _depCtlLoop)
-nodeController = NodeController(apiServer, _nodeCtlLoop)
-reqHandler = ReqHandler(apiServer)
-scheduler = Scheduler(apiServer, _scheduleCtlLoop)
-depControllerThread = threading.Thread(target=depController)
-nodeControllerThread = threading.Thread(target=nodeController)
-reqHandlerThread = threading.Thread(target=reqHandler)
-schedulerThread = threading.Thread(target = scheduler)
+api_server = APIServer()
+dep_controller = DepController(api_server, _depCtlLoop)
+node_controller = NodeController(api_server, _nodeCtlLoop)
+req_handler = ReqHandler(api_server)
+scheduler = Scheduler(api_server, _scheduleCtlLoop)
+dep_controller_thread = threading.Thread(target=dep_controller)
+node_controller_thread = threading.Thread(target=node_controller)
+req_handler_thread = threading.Thread(target=req_handler)
+scheduler_thread = threading.Thread(target = scheduler)
 print("Threads Starting")
-reqHandlerThread.start()
-nodeControllerThread.start()
-depControllerThread.start()
-schedulerThread.start()
+req_handler_thread.start()
+node_controller_thread.start()
+dep_controller_thread.start()
+scheduler_thread.start()
 print("ReadingFile")
 
 instructions = open("instructions.txt", "r")
 commands = instructions.readlines()
 for command in commands:
 	cmdAttributes = command.split()
-	with apiServer.etcdLock:
+	with api_server.etcd_lock:
 		if cmdAttributes[0] == 'Deploy':
-			apiServer.CreateDeployment(cmdAttributes[1:])
+			api_server.CreateDeployment(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'AddNode':
-			apiServer.CreateWorker(cmdAttributes[1:])
+			api_server.CreateWorker(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'CrashPod':
-			apiServer.CrashPod(cmdAttributes[1])
+			api_server.CrashPod(cmdAttributes[1])
 		elif cmdAttributes[0] == 'DeleteDeployment':
-			apiServer.RemoveDeployment(cmdAttributes[1])
+			api_server.RemoveDeployment(cmdAttributes[1])
 		elif cmdAttributes[0] == 'ReqIn':
-			apiServer.PushReq(cmdAttributes[1:])
+			api_server.AddReq(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'Sleep':
 			time.sleep(int(cmdAttributes[1]))
 	time.sleep(5)
 time.sleep(5)
 print("Shutting down threads")
 
-reqHandler.running = False
-depController.running = False
+req_handler.running = False
+dep_controller.running = False
 scheduler.running = False
-nodeController.running = False
-apiServer.requestWaiting.set()
-depControllerThread.join()
-schedulerThread.join()
-nodeControllerThread.join()
-reqHandlerThread.join()
+node_controller.running = False
+api_server.request_waiting.set()
+dep_controller_thread.join()
+scheduler_thread.join()
+node_controller_thread.join()
+req_handler_thread.join()

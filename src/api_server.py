@@ -13,34 +13,38 @@ import threading
 class APIServer:
 	def __init__(self):
 		self.etcd = Etcd()
-		self.etcdLock = threading.Lock()
-		self.kubeletList = []
-		self.requestWaiting = threading.Event()
+		self.etcd_lock = threading.Lock()
+		self.request_waiting = threading.Event()
 
 # 	GetDeployments method returns the list of deployments stored in etcd
 	def GetDeployments(self):
-		return self.etcd.deploymentList
+		return self.etcd.deployment_list
 
-#	GetDeploymentByLabel method returns a deployment queried by deploymentLabel	
+#	GetDeploymentByLabel method returns a deployment queried by deployment_label	
 	def GetDeploymentByLabel(self, label):
 		deployment_list = self.GetDeployments()
-		return next(filter(lambda deployment: deployment.deploymentLabel == label, deployment_list), None)
-		
+		return next(filter(lambda deployment: deployment.deployment_label == label, deployment_list), None)
 
 #	GetWorkers method returns the list of WorkerNodes stored in etcd
 	def GetWorkers(self):
-		return self.etcd.nodeList
+		return self.etcd.node_list
 
 #	GetPendingPodList method returns the list of PendingPods stored in etcd
 	def GetPendingPodList(self):
-		return self.etcd.pendingPodList
+		return self.etcd.pending_pod_list
 
 	def GetRunningPodList(self):
-		return self.etcd.runningPodList
+		return self.etcd.running_pod_list
+	
+	def RemoveRunningPod(self, pod):
+		running_pod_list = self.GetRunningPodList()
+		if pod in running_pod_list:
+			running_pod_list.remove(pod)
+
 
 #	GetEndPoints method returns the list of EndPoints stored in etcd
 	def GetEndPoints(self):
-		return self.etcd.endPointList
+		return self.etcd.end_point_list
 
 	def PrintEtcdWorkerList(self, label):
 		worker_list = self.GetWorkers()
@@ -48,12 +52,15 @@ class APIServer:
 		for worker in worker_list:
 			print(worker.__dict__)
 
-# CreateWorker creates a WorkerNode from a list of arguments and adds it to the etcd nodeList
+# CreateWorker creates a WorkerNode from a list of arguments and adds it to the etcd node_list
 	def CreateWorker(self, info):
 		worker = WorkerNode(info)
 		cur_worker_list = self.GetWorkers()
 		cur_worker_list.append(worker)
 		self.PrintEtcdWorkerList("***Worker Nodes***")
+
+	def DeallocateCPUFromWorker(self, worker, no_of_cpu):
+		worker.deallocateCpu(no_of_cpu)
 
 	def PrintEtcdDeploymentList(self, label):
 		deployment_list = self.GetDeployments()
@@ -62,68 +69,84 @@ class APIServer:
 			print(deployment.__dict__)
 
 
-# CreateDeployment creates a Deployment object from a list of arguments and adds it to the etcd deploymentList
+# CreateDeployment creates a Deployment object from a list of arguments and adds it to the etcd deployment_list
 	def CreateDeployment(self, info):
 		deployment = Deployment(info)
 		cur_deployment_list = self.GetDeployments()
 		cur_deployment_list.append(deployment)
 		self.PrintEtcdDeploymentList("***Deployment list***")
 
-# RemoveDeployment deletes the associated Deployment object from etcd and sets the status of all associated pods to 'TERMINATING'
-	def RemoveDeployment(self, deploymentLabel):
-		deployment = self.GetDeploymentByLabel(deploymentLabel)
-		deployment.expectedReplicas = 0
+	def AddReplicasToDeployment(self, deployment, replicas):
+		deployment.AddReplicas(replicas)
 
-		end_point_list = self.GetEndPointsByLabel(deploymentLabel)
+# RemoveDeployment deletes the associated Deployment object from etcd and sets the status of all associated pods to 'TERMINATING'
+	def RemoveDeployment(self, deployment_label):
+		deployment = self.GetDeploymentByLabel(deployment_label)
+		deployment.expected_replicas = 0
+		end_point_list = self.GetEndPointsByLabel(deployment_label)
 		for end_point in end_point_list:
 			self.TerminatePod(end_point)
-
 		self.RemoveFromPendingPodList(deployment)
 
 	def RemoveFromPendingPodList(self, deployment):
-		pending_pods_with_deployment = len(list(filter(lambda pod: pod.deploymentLabel == deployment.deploymentLabel, self.etcd.pendingPodList)))
-		self.etcd.pendingPodList = list(filter(lambda pod: pod.deploymentLabel != deployment.deploymentLabel, self.etcd.pendingPodList))
+		pending_pods_with_deployment = list(filter(lambda pod: pod.deployment_label == deployment.deployment_label, self.etcd.pending_pod_list))
+		self.etcd.pending_pod_list = list(filter(lambda pod: pod.deployment_label != deployment.deployment_label, self.etcd.pending_pod_list))
 		if pending_pods_with_deployment:
-			deployment.RemoveReplicas(pending_pods_with_deployment)
+			self.RemoveReplicasFromDeployment(deployment, len(pending_pods_with_deployment))
 
+	def RemoveReplicasFromDeployment(self, deployment, no_of_replicas):
+		deployment.RemoveReplicas(no_of_replicas)
 
-
+	def CleanupDeployment(self, deployment):
+		deployment_list = self.GetDeployments()
+		running_pod_list = self.GetRunningPodList()
+		does_pod_exist_for_deployment  = any(pod.deployment_label == deployment.deployment_label for pod in running_pod_list)
+		print(f"\n\n!!!Cleaning up deployment {deployment.deployment_label}: Pods exist - {does_pod_exist_for_deployment}!!!")
+		if not does_pod_exist_for_deployment:
+			deployment_list.remove(deployment)
+			print(f"!!!Deployment {deployment.deployment_label} deleted!!!")
+		else:
+			print(f"XXXUnable to delete deployment {deployment.deployment_label}XXX")
 
 # CreateEndpoint creates an EndPoint object using information from a provided Pod and Node and appends it
-# to the endPointList in etcd
+# to the end_point_list in etcd
 	def CreateEndPoint(self, pod, worker):
 		end_point = EndPoint(pod, worker)
 		cur_end_point_list = self.GetEndPoints()
 		cur_end_point_list.append(end_point)
-		print(f"\n\n***End point created for {pod.podName} and {worker.label} for {pod.deploymentLabel}***")
+		print(f"\n\n***End point created for {pod.podName} and {worker.label} for {pod.deployment_label}***")
 
 # RemoveEndPoint removes end point from end point list
 	def RemoveEndPoint(self, end_point):
-		self.etcd.endPointList.remove(end_point)
+		self.etcd.end_point_list.remove(end_point)
+		print(f"\n\n!!!Endpoint removed between {end_point.pod.podName} and {end_point.node.label}")
 
 # CheckEndPoint checks that the associated pod is still present on the expected WorkerNode
 	def CheckEndPoint(self, endPoint):
 		return endPoint.pod and endPoint.pod.IsRunning()
 
 # GetEndPointsByLabel returns a list of EndPoints associated with a given deployment
-	def GetEndPointsByLabel(self, deploymentLabel):
+	def GetEndPointsByLabel(self, deployment_label):
 		cur_end_point_list = self.GetEndPoints()
-		deployment_end_points = list(filter(lambda end_point: end_point.deploymentLabel == deploymentLabel, cur_end_point_list))
+		deployment_end_points = list(filter(lambda end_point: end_point.deployment_label == deployment_label, cur_end_point_list))
 		return deployment_end_points
 
 
 # CreatePod finds the resource allocations associated with a deployment and creates a pod using those metrics
-	def CreatePod(self, deploymentLabel):
-		deployment = self.GetDeploymentByLabel(deploymentLabel)
+	def CreatePod(self, deployment_label):
+		deployment = self.GetDeploymentByLabel(deployment_label)
 		if deployment is not None:
-			podName = deploymentLabel + '-pod-' + str(deployment.currentReplicas + 1)
-			pod = Pod(podName, deployment.cpuCost, deploymentLabel)
-			self.etcd.pendingPodList.append(pod)
+			podName = deployment_label + '-pod-' + str(deployment.current_replicas + 1)
+			pod = Pod(podName, deployment.cpu_cost, deployment_label)
+			self.etcd.pending_pod_list.append(pod)
 		
-
 # GetPod returns the pod object
 	def GetPod(self, endPoint):
 		return endPoint.pod
+
+	def EngagePod(self, pod, req):
+		if pod and req:
+			pod.HandleRequest(req)
 
 # TerminatePod finds the pod associated with a given EndPoint and sets it's status to 'TERMINATING'
 # No new requests will be sent to a pod marked 'TERMINATING'. Once its current requests have been handled,
@@ -145,41 +168,45 @@ class APIServer:
 
 # MoveToPending moves pod to pending
 	def MoveToPending(self, pod):
-		self.etcd.runningPodList.remove(pod)
-		self.etcd.pendingPodList.append(pod)
+		self.etcd.running_pod_list.remove(pod)
+		self.etcd.pending_pod_list.append(pod)
 
 # CheckPod finds if a pod has the req cpu cost
-	def CheckPod(self, pod, cpuCost):
-		return pod.assigned_cpu >= cpuCost
+	def CheckPod(self, pod, cpu_cost):
+		return pod.assigned_cpu >= cpu_cost
 
 # FindPodsFromPending returns pods in a pending list that can accomodate a certain CPU cost
-	def FindPodsFromPending(self, cpuCost):
+	def FindPodsFromPending(self, cpu_cost):
 		cur_pending_list = self.GetPendingPodList()
-		return list(filter(lambda pod: pod.status == "PENDING" and pod.assigned_cpu >= cpuCost, cur_pending_list))
+		return list(filter(lambda pod: pod.status == "PENDING" and pod.assigned_cpu >= cpu_cost, cur_pending_list))
 
-# AssignNode takes a pod in the pendingPodList and transfers it to the runningPodList
+	def GetRunningPodsByDeployment(self, deployment_label):
+		running_pod_list = self.GetRunningPodList()
+		return list(filter(lambda pod: pod.deployment_label == deployment_label, running_pod_list))
+
+# AssignNode takes a pod in the pending_pod_list and transfers it to the running_pod_list
 	def AssignNode(self, pod, worker):
-		self.etcd.pendingPodList.remove(pod)
-		self.etcd.runningPodList.append(pod)
+		self.etcd.pending_pod_list.remove(pod)
+		self.etcd.running_pod_list.append(pod)
 		worker.AllocateCpu(pod.assigned_cpu)
 		pod.Run()
 		print(f"*** Pod {pod.podName} is running on worker node {worker.label}***")
 
-#	pushReq adds the incoming request to the handling queue
-	def PushReq(self, info):
-		self.etcd.reqCreator.submit(self.ReqHandle, info)
+#	AddReq adds the incoming request to the handling queue
+	def AddReq(self, info):
+		self.etcd.req_creator.submit(self.AppendReq, info)
 
-
-# Creates requests and notifies the handler of request to be dealt with
-
-	def ReqHandle(self, info):
-		self.etcd.pendingReqs.append(Request(info))
-		self.requestWaiting.set()
+# AppendReq Creates requests and notifies the handler of request to be dealt with
+	def AppendReq(self, info):
+		req = Request(info)
+		print(f'\n\n***Request created label: {req.label}({req.exec_time}s) for deployment {req.deployment_label}')
+		self.etcd.pending_reqs.append(req)
+		self.request_waiting.set()
 	
-	def DiscardRequest(self, req):
-		print("\n~~~Discarding " + req.status + " request " + req.label + "(" + req.deploymentLabel + ")~~~\n")
-		self.etcd.pendingReqs.remove(req)
+	def DiscardRequest(self, req, status):
+		print("\n~~~Discarding " + status + " request " + req.label + "(" + req.deployment_label + ")~~~\n")
+		self.etcd.pending_reqs.remove(req)
 
 # GetPendingRequests returns pending requests
 	def GetPendingRequests(self):
-		return self.etcd.pendingReqs
+		return self.etcd.pending_reqs

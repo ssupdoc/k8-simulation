@@ -16,13 +16,13 @@ class WorkerNode:
 		self.available_cpu = int(self.assigned_cpu)
 		self.status = 'UP'
 
-	def AllocateCpu(self, cpuCost):
-		if cpuCost <= self.available_cpu:
-			self.available_cpu -= cpuCost
+	def AllocateCpu(self, cpu_cost):
+		if cpu_cost <= self.available_cpu:
+			self.available_cpu -= cpu_cost
 		print(f"***Worker node {self.label} allocated: Assigned - {self.assigned_cpu} Available - {self.available_cpu}***")
 
-	def deallocateCpu(self, cpuCost):
-		self.available_cpu += cpuCost
+	def deallocateCpu(self, cpu_cost):
+		self.available_cpu += cpu_cost
 		if self.available_cpu > self.assigned_cpu:
 			self.available_cpu = self.assigned_cpu
 		print(f"***Worker node {self.label} deallocated: Assigned - {self.assigned_cpu} Available - {self.available_cpu}***")

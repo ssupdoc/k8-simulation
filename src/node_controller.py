@@ -7,29 +7,23 @@ import time
 #The NodeController will remove stale EndPoints and update to show changes in others
 class NodeController:
 	
-	def __init__(self, APISERVER, LOOPTIME):
-		self.apiServer = APISERVER
+	def __init__(self, api_server, LOOPTIME):
+		self.api_server = api_server
 		self.running = True
 		self.time = LOOPTIME
 	
 	def __call__(self):
 		print("NodeController start")
 		while self.running:
-			with self.apiServer.etcdLock:
-				end_point_list = self.apiServer.GetEndPoints()
+			with self.api_server.etcd_lock:
+				end_point_list = self.api_server.GetEndPoints()
 				obsolete_end_point = next(filter(lambda end_point: end_point.pod.IsDown(), end_point_list), None)
 				if obsolete_end_point:
 					pod = obsolete_end_point.pod
-
-					node = obsolete_end_point.node
-					node.deallocateCpu(pod.assigned_cpu)
-
+					self.api_server.DeallocateCPUFromWorker(obsolete_end_point.node, pod.assigned_cpu)
 					if pod.IsFailed():
-						self.apiServer.MoveToPending(pod)
+						self.api_server.MoveToPending(pod)
 						pod.Refresh()
-
-					self.apiServer.RemoveEndPoint(obsolete_end_point)
-
+					self.api_server.RemoveEndPoint(obsolete_end_point)
 			time.sleep(self.time)
-
 		print("NodeContShutdown")
