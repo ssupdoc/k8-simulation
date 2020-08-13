@@ -7,14 +7,19 @@ from node_controller import NodeController
 from scheduler import Scheduler
 import time
 
+import os
+
 #This is the simulation frontend that will interact with your APIServer to change cluster configurations and handle requests
 #All building files are guidelines, and you are welcome to change them as much as desired so long as the required functionality is still implemented.
+
+TRACEFILE = "req_in_failure.txt"
+SRC_PATH = os.getcwd()
 
 _nodeCtlLoop = 5
 _depCtlLoop = 5
 _scheduleCtlLoop =5
 
-api_server = APIServer()
+api_server = APIServer(TRACEFILE)
 dep_controller = DepController(api_server, _depCtlLoop)
 node_controller = NodeController(api_server, _nodeCtlLoop)
 req_handler = ReqHandler(api_server)
@@ -30,7 +35,8 @@ dep_controller_thread.start()
 scheduler_thread.start()
 print("ReadingFile")
 
-instructions = open("instructions.txt", "r")
+path = SRC_PATH + f'/tracefiles/{TRACEFILE}'
+instructions = open(path, "r")
 commands = instructions.readlines()
 for command in commands:
 	cmdAttributes = command.split()
@@ -60,3 +66,5 @@ dep_controller_thread.join()
 scheduler_thread.join()
 node_controller_thread.join()
 req_handler_thread.join()
+
+api_server.log.LogMetrics()

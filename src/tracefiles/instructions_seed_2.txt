@@ -1,0 +1,83 @@
+AddNode Node_1 5
+AddNode Node_2 5
+AddNode Node_3 4
+Deploy Deployment_AA 1 1
+DeleteDeployment Deployment_AA
+Sleep 1
+Deploy Deployment_AB 2 1
+ReqIn 8 Deployment_AB 10
+ReqIn 9 Deployment_AB 3
+CrashPod Deployment_AB
+Deploy Deployment_AC 2 1
+ReqIn 12 Deployment_AB 5
+ReqIn 13 Deployment_AC 1
+ReqIn 14 Deployment_AB 6
+Deploy Deployment_AD 2 1
+DeleteDeployment Deployment_AB
+ReqIn 17 Deployment_AC 7
+ReqIn 18 Deployment_AD 3
+DeleteDeployment Deployment_AD
+ReqIn 20 Deployment_AC 4
+ReqIn 21 Deployment_AC 1
+ReqIn 22 Deployment_AC 7
+DeleteDeployment Deployment_AC
+Deploy Deployment_AE 1 1
+ReqIn 25 Deployment_AE 9
+Deploy Deployment_AF 1 1
+ReqIn 27 Deployment_AE 10
+DeleteDeployment Deployment_AE
+ReqIn 29 Deployment_AF 4
+CrashPod Deployment_AF
+Sleep 2
+ReqIn 32 Deployment_AF 10
+ReqIn 33 Deployment_AF 5
+ReqIn 34 Deployment_AF 7
+CrashPod Deployment_AF
+DeleteDeployment Deployment_AF
+Sleep 3
+Deploy Deployment_AG 3 1
+Deploy Deployment_AH 3 1
+CrashPod Deployment_AG
+Sleep 4
+ReqIn 42 Deployment_AG 8
+ReqIn 43 Deployment_AG 10
+CrashPod Deployment_AG
+ReqIn 45 Deployment_AG 4
+ReqIn 46 Deployment_AH 1
+DeleteDeployment Deployment_AG
+Deploy Deployment_AI 1 1
+CrashPod Deployment_AI
+ReqIn 50 Deployment_AI 5
+ReqIn 51 Deployment_AH 7
+ReqIn 52 Deployment_AI 3
+Deploy Deployment_AJ 3 1
+ReqIn 54 Deployment_AH 4
+ReqIn 55 Deployment_AI 8
+ReqIn 56 Deployment_AH 9
+ReqIn 57 Deployment_AH 3
+CrashPod Deployment_AI
+ReqIn 59 Deployment_AJ 10
+Sleep 2
+ReqIn 61 Deployment_AI 4
+ReqIn 62 Deployment_AI 10
+ReqIn 63 Deployment_AH 1
+ReqIn 64 Deployment_AI 10
+Sleep 4
+Deploy Deployment_AK 2 1
+ReqIn 67 Deployment_AK 4
+Sleep 4
+Deploy Deployment_AL 2 1
+ReqIn 70 Deployment_AH 9
+DeleteDeployment Deployment_AK
+ReqIn 72 Deployment_AL 10
+DeleteDeployment Deployment_AH
+Deploy Deployment_AM 1 1
+ReqIn 75 Deployment_AM 6
+DeleteDeployment Deployment_AJ
+ReqIn 77 Deployment_AI 1
+Sleep 1
+Sleep 2
+Sleep 1
+DeleteDeployment Deployment_AI
+DeleteDeployment Deployment_AL
+DeleteDeployment Deployment_AM

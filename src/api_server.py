@@ -4,6 +4,7 @@ from etcd import Etcd
 from pod import Pod
 from worker_node import WorkerNode
 from request import Request
+from log import Log
 import threading
 
 # The APIServer handles the communication between controllers and the cluster. It houses
@@ -11,10 +12,11 @@ import threading
 
 
 class APIServer:
-	def __init__(self):
+	def __init__(self, TRACEFILE):
 		self.etcd = Etcd()
 		self.etcd_lock = threading.Lock()
 		self.request_waiting = threading.Event()
+		self.log = Log(TRACEFILE)
 
 # 	GetDeployments method returns the list of deployments stored in etcd
 	def GetDeployments(self):
@@ -212,10 +214,13 @@ class APIServer:
 		print(f'\n\n***Request created label: {req.label}({req.exec_time}s) for deployment {req.deployment_label}')
 		self.etcd.pending_reqs.append(req)
 		self.request_waiting.set()
+		self.log.AddRequest(req)
+
 #	DiscardRequest removes request from the pending reqs queue	
 	def DiscardRequest(self, req, status):
 		print("\n~~~Discarding " + status + " request " + req.label + "(" + req.deployment_label + ")~~~\n")
 		self.etcd.pending_reqs.remove(req)
+		self.log.UpdateRequest(req.label, status)
 
 #	GetPendingRequests returns pending requests
 	def GetPendingRequests(self):
