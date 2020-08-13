@@ -15,6 +15,7 @@ class ReqHandler:
 			with self.api_server.etcd_lock:
 				pending_req_list = []
 				pending_req_list[:] = self.api_server.GetPendingRequests()
+				# Iterate pending requests to be assigned to pods
 				for req in pending_req_list:
 					matching_end_point_list = self.api_server.GetEndPointsByLabel(req.deployment_label)
 					pods_active = any(not end_point.pod.IsTerminating() for end_point in matching_end_point_list)
@@ -28,6 +29,7 @@ class ReqHandler:
 			self.api_server.request_waiting.clear()
 		print("ReqHandlerShutdown")
 
+#	GetPodForRequest finds a suitable pod from the end point list for a given request
 	def GetPodForRequest(self, req, end_point_list):
 		suitable_pod = None
 		for end_point in end_point_list:

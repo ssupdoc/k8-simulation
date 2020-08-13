@@ -20,6 +20,7 @@ class Scheduler(threading.Thread):
 				pending_pod_list[:] = self.api_server.GetPendingPodList()
 				worker_list = self.api_server.GetWorkers()
 				suitable_worker_node = None
+				# Assign pending pods to suitable nodes and create an endpoint for the same
 				for pending_pod in pending_pod_list:
 					suitable_worker_node = next(filter(lambda node: node.available_cpu >= pending_pod.assigned_cpu, worker_list), None)
 					if suitable_worker_node is not None:

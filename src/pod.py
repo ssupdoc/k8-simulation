@@ -56,11 +56,13 @@ class Pod:
 	def IsIdle(self):
 		return self.available_cpu == self.assigned_cpu
 
-	def Refresh(self):
+#	Reset pod to initial state
+	def Reset(self):
 		self.SetStatus("PENDING")
 		self.available_cpu = 0
 		self.crash.clear()
-	
+
+#	Run pod by assigning available CPUs
 	def Run(self):
 		self.available_cpu = self.assigned_cpu
 		self.SetStatus("RUNNING")
