@@ -40,6 +40,7 @@ class APIServer:
 		cur_deployment_list = self.GetDeployments()
 		cur_deployment_list.append(deployment)
 		self.PrintEtcdDeploymentList("***Deployment list***")
+		self.log.AddDeployment(deployment)
 
 #	AddReplicasToDeployment adds replicas to a particular deployment
 	def AddReplicasToDeployment(self, deployment, replicas):
