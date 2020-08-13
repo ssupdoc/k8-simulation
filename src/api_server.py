@@ -122,6 +122,7 @@ class APIServer:
 			pod_name = deployment_label + '-pod-' + str(deployment.current_replicas + 1)
 			pod = Pod(pod_name, deployment.cpu_cost, deployment_label)
 			self.etcd.pending_pod_list.append(pod)
+			self.log.AddPod(pod)
 		
 #	GetPod returns the pod object
 	def GetPod(self, endPoint):
@@ -131,6 +132,7 @@ class APIServer:
 	def EngagePod(self, pod, req):
 		if pod and req:
 			pod.HandleRequest(req)
+			self.log.AddRequestHandlingPod(pod)
 
 #	TerminatePod finds the pod associated with a given EndPoint and sets it's status to 'TERMINATING'
 #	No new requests will be sent to a pod marked 'TERMINATING'. Once its current requests have been handled,
