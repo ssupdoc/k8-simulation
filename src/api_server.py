@@ -96,6 +96,7 @@ class APIServer:
 		cur_worker_list = self.GetWorkers()
 		cur_worker_list.append(worker)
 		self.PrintEtcdWorkerList("***Worker Nodes***")
+		self.log.AddWorker(worker)
 
 #	DeallocateCPUFromWorker frees up certain cpu for a given worker
 	def DeallocateCPUFromWorker(self, worker, no_of_cpu):
@@ -204,6 +205,7 @@ class APIServer:
 		self.etcd.pending_pod_list.remove(pod)
 		self.etcd.running_pod_list.append(pod)
 		worker.AllocateCpu(pod.assigned_cpu)
+		self.log.RecordCPUUtilisation(worker)
 		pod.Run()
 		print(f"*** Pod {pod.pod_name} is running on worker node {worker.label}***")
 

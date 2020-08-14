@@ -10,6 +10,7 @@ class Log:
 		self.requests = []
 		self.deployments = []
 		self.pod_list = []
+		self.worker_list = []
 		self.log_file = self.GetLogFilePath(TRACEFILE)
 		logging.basicConfig(filename=self.log_file, level=logging.INFO)
 
@@ -34,7 +35,7 @@ class Log:
 		logging.info("------------------------------")
 		for req in self.requests:
 			logging.info(f"Req {req.label} - Execution time {req.exec_time}s took {round(req.throughput, 4)}s STATUS: {req.status}")
-		logging.info("------------------------------")
+		logging.info("-------------------------------------------------------------------------------------------")
 
 	def LogRequestSuccessFailure(self):
 		self.LogReqSuccess()
@@ -46,7 +47,7 @@ class Log:
 		failed_requests = self.GetFailureRequests(self.requests)
 		logging.info(f"Failed requests: {len(failed_requests)}/{len(self.requests)}")
 		logging.info(f"Average wait time of failed requests: {round(self.CalculateAverageWaitTime(failed_requests), 4)}s")
-		logging.info("------------------------------")
+		logging.info("-------------------------------------------------------------------------------------------")
 
 	def LogReqSuccess(self):
 		logging.info("----- Request Success -----")
@@ -54,7 +55,7 @@ class Log:
 		successful_requests = self.GetSuccessfulRequests(self.requests)
 		logging.info(f"Successful requests: {len(successful_requests)}/{len(self.requests)}")
 		logging.info(f"Average wait time of successful requests: {round(self.CalculateAverageWaitTime(successful_requests), 4)}s")
-		logging.info("------------------------------")
+		logging.info("-------------------------------------------------------------------------------------------")
 
 	def CalculateAverageWaitTime(self, requests):
 		total_wait_time = 0
@@ -89,8 +90,8 @@ class Log:
 			success_perc = 0
 			if successful_req:
 				success_perc = len(successful_req)/len(requests_in_deployment) * 100
-			logging.info(f"Successful requests: {success_perc}%")
-		logging.info("------------------------------")
+			logging.info(f"Successful requests: {round(success_perc, 2)}%")
+		logging.info("-------------------------------------------------------------------------------------------")
 
 
 	def GetRequestsByDeployment(self, label):
@@ -113,10 +114,31 @@ class Log:
 		sorted_pod_list = sorted(self.pod_list, key=lambda pod: pod.req_count, reverse=True)
 		for pod in sorted_pod_list:
 			logging.info(f"Pod {pod.pod_name} Requests handled: {pod.req_count}")
-		logging.info("---------------------------------------------")
+		logging.info("-------------------------------------------------------------------------------------------")
+
+	def AddWorker(self, worker):
+		worker.max_cpu_utilised = 0
+		self.worker_list.append(worker)
+
+	def RecordCPUUtilisation(self, worker):
+		matching_worker = next(filter(lambda existing_worker: existing_worker.label == worker.label, self.worker_list), None)
+		if matching_worker is not None:
+			current_cpu_utilisation = worker.assigned_cpu - worker.available_cpu
+			if matching_worker.max_cpu_utilised < current_cpu_utilisation:
+				matching_worker.max_cpu_utilised = current_cpu_utilisation
+
+	def LogWorkerCPUUtilisationMetrics(self):
+		logging.info("----- Worker node CPU utilisation metrics -----")
+		logging.info("-----------------------------------------------")
+		sorted_worker_list = sorted(self.worker_list, key=lambda worker: worker.max_cpu_utilised, reverse=True)
+		for worker in sorted_worker_list:
+			max_utilisation_perc = (worker.max_cpu_utilised / worker.assigned_cpu) * 100
+			logging.info(f"Worker {worker.label} Max CPU Utilization: {worker.max_cpu_utilised}/{worker.assigned_cpu} ({round(max_utilisation_perc, 2)}%)")
+		logging.info("-------------------------------------------------------------------------------------------")
 
 	def LogMetrics(self):
 		self.LogRequestThroughput()
 		self.LogRequestSuccessFailure()
 		self.LogDeploymentWiseMetrics()
 		self.LogPodRequestHandlingMetrics()
+		self.LogWorkerCPUUtilisationMetrics()

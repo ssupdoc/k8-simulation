@@ -1,0 +1,233 @@
+INFO:root:----- Request throughput -----
+INFO:root:------------------------------
+INFO:root:Req 4 - Execution time 3s took 3.0083s STATUS: PROCESSED
+INFO:root:Req 5 - Execution time 10s took 10.0025s STATUS: PROCESSED
+INFO:root:Req 7 - Execution time 4s took 4.004s STATUS: PROCESSED
+INFO:root:Req 14 - Execution time 8s took 8.0061s STATUS: PROCESSED
+INFO:root:Req 15 - Execution time 5s took 5.0055s STATUS: PROCESSED
+INFO:root:Req 17 - Execution time 5s took 5.0055s STATUS: PROCESSED
+INFO:root:Req 19 - Execution time 1s took 1.0052s STATUS: PROCESSED
+INFO:root:Req 23 - Execution time 9s took 9.0053s STATUS: PROCESSED
+INFO:root:Req 24 - Execution time 3s took 3.0055s STATUS: PROCESSED
+INFO:root:Req 26 - Execution time 4s took 4.0017s STATUS: PROCESSED
+INFO:root:Req 27 - Execution time 9s took 9.0034s STATUS: PROCESSED
+INFO:root:Req 28 - Execution time 9s took 9.0031s STATUS: PROCESSED
+INFO:root:Req 29 - Execution time 9s took 9.0053s STATUS: PROCESSED
+INFO:root:Req 31 - Execution time 4s took 4.0019s STATUS: PROCESSED
+INFO:root:Req 35 - Execution time 3s took 3.005s STATUS: PROCESSED
+INFO:root:Req 38 - Execution time 5s took 5.0033s STATUS: PROCESSED
+INFO:root:Req 41 - Execution time 10s took 10.0112s STATUS: PROCESSED
+INFO:root:Req 43 - Execution time 4s took 4.0097s STATUS: PROCESSED
+INFO:root:Req 47 - Execution time 8s took 8.0115s STATUS: PROCESSED
+INFO:root:Req 48 - Execution time 8s took 8.0114s STATUS: PROCESSED
+INFO:root:Req 50 - Execution time 2s took 2.003s STATUS: PROCESSED
+INFO:root:Req 52 - Execution time 7s took 7.018s STATUS: PROCESSED
+INFO:root:Req 54 - Execution time 9s took 9.0144s STATUS: PROCESSED
+INFO:root:Req 56 - Execution time 7s took 7.0085s STATUS: PROCESSED
+INFO:root:Req 58 - Execution time 2s took 2.011s STATUS: PROCESSED
+INFO:root:Req 62 - Execution time 3s took 3.0051s STATUS: PROCESSED
+INFO:root:Req 63 - Execution time 2s took 2.0117s STATUS: PROCESSED
+INFO:root:Req 65 - Execution time 10s took 10.0083s STATUS: PROCESSED
+INFO:root:Req 67 - Execution time 6s took 6.0092s STATUS: PROCESSED
+INFO:root:Req 68 - Execution time 7s took 7.0107s STATUS: PROCESSED
+INFO:root:Req 70 - Execution time 6s took 6.0053s STATUS: PROCESSED
+INFO:root:Req 74 - Execution time 5s took 5.011s STATUS: PROCESSED
+INFO:root:Req 76 - Execution time 6s took 6.0048s STATUS: PROCESSED
+INFO:root:Req 77 - Execution time 7s took 7.0071s STATUS: PROCESSED
+INFO:root:Req 79 - Execution time 7s took 7.0113s STATUS: PROCESSED
+INFO:root:Req 81 - Execution time 5s took 5.0092s STATUS: PROCESSED
+INFO:root:Req 82 - Execution time 5s took 5.0059s STATUS: PROCESSED
+INFO:root:Req 83 - Execution time 5s took 5.0061s STATUS: PROCESSED
+INFO:root:Req 85 - Execution time 10s took 10.008s STATUS: PROCESSED
+INFO:root:Req 86 - Execution time 5s took 5.0094s STATUS: PROCESSED
+INFO:root:Req 87 - Execution time 1s took 1.0076s STATUS: PROCESSED
+INFO:root:Req 88 - Execution time 1s took 1.0046s STATUS: PROCESSED
+INFO:root:Req 89 - Execution time 9s took 9.0119s STATUS: PROCESSED
+INFO:root:Req 92 - Execution time 8s took 8.0103s STATUS: PROCESSED
+INFO:root:Req 93 - Execution time 7s took 7.0115s STATUS: PROCESSED
+INFO:root:Req 94 - Execution time 1s took 1.0083s STATUS: PROCESSED
+INFO:root:Req 97 - Execution time 5s took 5.0119s STATUS: PROCESSED
+INFO:root:Req 98 - Execution time 10s took 10.0119s STATUS: PROCESSED
+INFO:root:Req 99 - Execution time 4s took 4.0101s STATUS: PROCESSED
+INFO:root:Req 103 - Execution time 5s took 5.0056s STATUS: PROCESSED
+INFO:root:Req 104 - Execution time 3s took 3.0062s STATUS: PROCESSED
+INFO:root:Req 106 - Execution time 3s took 3.0033s STATUS: PROCESSED
+INFO:root:Req 108 - Execution time 7s took 7.0117s STATUS: PROCESSED
+INFO:root:Req 109 - Execution time 6s took 6.0114s STATUS: PROCESSED
+INFO:root:Req 112 - Execution time 10s took 10.0053s STATUS: PROCESSED
+INFO:root:Req 113 - Execution time 6s took 6.0113s STATUS: PROCESSED
+INFO:root:Req 114 - Execution time 5s took 5.0052s STATUS: PROCESSED
+INFO:root:Req 116 - Execution time 2s took 2.0095s STATUS: PROCESSED
+INFO:root:Req 118 - Execution time 2s took 2.0104s STATUS: PROCESSED
+INFO:root:Req 119 - Execution time 1s took 1.0097s STATUS: PROCESSED
+INFO:root:Req 122 - Execution time 1s took 1.0076s STATUS: PROCESSED
+INFO:root:Req 124 - Execution time 2s took 2.0079s STATUS: PROCESSED
+INFO:root:Req 128 - Execution time 2s took 2.003s STATUS: PROCESSED
+INFO:root:Req 132 - Execution time 9s took 9.0119s STATUS: PROCESSED
+INFO:root:Req 134 - Execution time 4s took 4.0098s STATUS: PROCESSED
+INFO:root:Req 140 - Execution time 1s took 1.0115s STATUS: PROCESSED
+INFO:root:Req 141 - Execution time 2s took 2.0108s STATUS: PROCESSED
+INFO:root:Req 143 - Execution time 4s took 4.0015s STATUS: PROCESSED
+INFO:root:Req 149 - Execution time 8s took 8.0131s STATUS: PROCESSED
+INFO:root:Req 150 - Execution time 2s took 2.008s STATUS: PROCESSED
+INFO:root:Req 153 - Execution time 3s took 3.0081s STATUS: PROCESSED
+INFO:root:Req 156 - Execution time 7s took 0.0012s STATUS: FAILED
+INFO:root:Req 157 - Execution time 7s took 7.012s STATUS: PROCESSED
+INFO:root:Req 158 - Execution time 5s took 5.0057s STATUS: PROCESSED
+INFO:root:Req 160 - Execution time 7s took 7.0078s STATUS: PROCESSED
+INFO:root:Req 162 - Execution time 4s took 4.0053s STATUS: PROCESSED
+INFO:root:Req 166 - Execution time 9s took 9.004s STATUS: PROCESSED
+INFO:root:Req 167 - Execution time 1s took 1.0119s STATUS: PROCESSED
+INFO:root:Req 169 - Execution time 5s took 5.0079s STATUS: PROCESSED
+INFO:root:Req 171 - Execution time 4s took 4.0031s STATUS: PROCESSED
+INFO:root:Req 172 - Execution time 3s took 3.0115s STATUS: PROCESSED
+INFO:root:Req 173 - Execution time 7s took 7.0043s STATUS: PROCESSED
+INFO:root:Req 175 - Execution time 3s took 3.007s STATUS: PROCESSED
+INFO:root:Req 177 - Execution time 9s took 9.009s STATUS: PROCESSED
+INFO:root:Req 180 - Execution time 8s took 8.0118s STATUS: PROCESSED
+INFO:root:-------------------------------------------------------------------------------------------
+INFO:root:----- Request Success -----
+INFO:root:------------------------------
+INFO:root:Successful requests: 84/85
+INFO:root:Average wait time of successful requests: 0.0079s
+INFO:root:-------------------------------------------------------------------------------------------
+INFO:root:----- Request Failure -----
+INFO:root:------------------------------
+INFO:root:Failed requests: 1/85
+INFO:root:Average wait time of failed requests: 0.0012s
+INFO:root:-------------------------------------------------------------------------------------------
+INFO:root:----- Deployment wise metrics -----
+INFO:root:------------------------------
+INFO:root:Deployment label: Deployment_AA with 3 requests
+INFO:root:Average wait time of requests: 0.005s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AB with 6 requests
+INFO:root:Average wait time of requests: 0.005s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AC with 3 requests
+INFO:root:Average wait time of requests: 0.004s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AD with 1 requests
+INFO:root:Average wait time of requests: 0.005s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AE with 8 requests
+INFO:root:Average wait time of requests: 0.007s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AF with 5 requests
+INFO:root:Average wait time of requests: 0.01s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AG with 2 requests
+INFO:root:Average wait time of requests: 0.011s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AH with 2 requests
+INFO:root:Average wait time of requests: 0.011s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AI with 0 requests
+INFO:root:Average wait time of requests: 0s
+INFO:root:Successful requests: 0%
+INFO:root:Deployment label: Deployment_AJ with 0 requests
+INFO:root:Average wait time of requests: 0s
+INFO:root:Successful requests: 0%
+INFO:root:Deployment label: Deployment_AK with 19 requests
+INFO:root:Average wait time of requests: 0.008s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AL with 6 requests
+INFO:root:Average wait time of requests: 0.007s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AM with 9 requests
+INFO:root:Average wait time of requests: 0.01s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AN with 0 requests
+INFO:root:Average wait time of requests: 0s
+INFO:root:Successful requests: 0%
+INFO:root:Deployment label: Deployment_AO with 3 requests
+INFO:root:Average wait time of requests: 0.005s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AP with 1 requests
+INFO:root:Average wait time of requests: 0.01s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AQ with 6 requests
+INFO:root:Average wait time of requests: 0.008s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AR with 4 requests
+INFO:root:Average wait time of requests: 0.009s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AS with 2 requests
+INFO:root:Average wait time of requests: 0.011s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AT with 0 requests
+INFO:root:Average wait time of requests: 0s
+INFO:root:Successful requests: 0%
+INFO:root:Deployment label: Deployment_AU with 1 requests
+INFO:root:Average wait time of requests: 0.001s
+INFO:root:Successful requests: 0%
+INFO:root:Deployment label: Deployment_AV with 2 requests
+INFO:root:Average wait time of requests: 0.009s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AW with 1 requests
+INFO:root:Average wait time of requests: 0.008s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AX with 1 requests
+INFO:root:Average wait time of requests: 0.009s
+INFO:root:Successful requests: 100.0%
+INFO:root:-------------------------------------------------------------------------------------------
+INFO:root:----- Pod list by max requests handled -----
+INFO:root:--------------------------------------------
+INFO:root:Pod Deployment_AK-pod-1 Requests handled: 17
+INFO:root:Pod Deployment_AM-pod-1 Requests handled: 6
+INFO:root:Pod Deployment_AE-pod-1 Requests handled: 5
+INFO:root:Pod Deployment_AF-pod-1 Requests handled: 5
+INFO:root:Pod Deployment_AL-pod-3 Requests handled: 4
+INFO:root:Pod Deployment_AQ-pod-1 Requests handled: 4
+INFO:root:Pod Deployment_AB-pod-1 Requests handled: 3
+INFO:root:Pod Deployment_AC-pod-1 Requests handled: 3
+INFO:root:Pod Deployment_AE-pod-2 Requests handled: 3
+INFO:root:Pod Deployment_AM-pod-2 Requests handled: 3
+INFO:root:Pod Deployment_AO-pod-2 Requests handled: 3
+INFO:root:Pod Deployment_AA-pod-1 Requests handled: 2
+INFO:root:Pod Deployment_AB-pod-3 Requests handled: 2
+INFO:root:Pod Deployment_AG-pod-1 Requests handled: 2
+INFO:root:Pod Deployment_AK-pod-2 Requests handled: 2
+INFO:root:Pod Deployment_AL-pod-2 Requests handled: 2
+INFO:root:Pod Deployment_AQ-pod-2 Requests handled: 2
+INFO:root:Pod Deployment_AR-pod-1 Requests handled: 2
+INFO:root:Pod Deployment_AR-pod-2 Requests handled: 2
+INFO:root:Pod Deployment_AS-pod-1 Requests handled: 2
+INFO:root:Pod Deployment_AA-pod-2 Requests handled: 1
+INFO:root:Pod Deployment_AB-pod-2 Requests handled: 1
+INFO:root:Pod Deployment_AD-pod-1 Requests handled: 1
+INFO:root:Pod Deployment_AH-pod-1 Requests handled: 1
+INFO:root:Pod Deployment_AH-pod-2 Requests handled: 1
+INFO:root:Pod Deployment_AP-pod-1 Requests handled: 1
+INFO:root:Pod Deployment_AV-pod-1 Requests handled: 1
+INFO:root:Pod Deployment_AV-pod-2 Requests handled: 1
+INFO:root:Pod Deployment_AW-pod-1 Requests handled: 1
+INFO:root:Pod Deployment_AX-pod-2 Requests handled: 1
+INFO:root:Pod Deployment_AC-pod-2 Requests handled: 0
+INFO:root:Pod Deployment_AC-pod-3 Requests handled: 0
+INFO:root:Pod Deployment_AD-pod-2 Requests handled: 0
+INFO:root:Pod Deployment_AF-pod-2 Requests handled: 0
+INFO:root:Pod Deployment_AF-pod-3 Requests handled: 0
+INFO:root:Pod Deployment_AG-pod-2 Requests handled: 0
+INFO:root:Pod Deployment_AI-pod-1 Requests handled: 0
+INFO:root:Pod Deployment_AJ-pod-1 Requests handled: 0
+INFO:root:Pod Deployment_AL-pod-1 Requests handled: 0
+INFO:root:Pod Deployment_AN-pod-1 Requests handled: 0
+INFO:root:Pod Deployment_AN-pod-2 Requests handled: 0
+INFO:root:Pod Deployment_AN-pod-3 Requests handled: 0
+INFO:root:Pod Deployment_AO-pod-1 Requests handled: 0
+INFO:root:Pod Deployment_AP-pod-2 Requests handled: 0
+INFO:root:Pod Deployment_AP-pod-3 Requests handled: 0
+INFO:root:Pod Deployment_AT-pod-1 Requests handled: 0
+INFO:root:Pod Deployment_AT-pod-2 Requests handled: 0
+INFO:root:Pod Deployment_AU-pod-1 Requests handled: 0
+INFO:root:Pod Deployment_AV-pod-3 Requests handled: 0
+INFO:root:Pod Deployment_AX-pod-1 Requests handled: 0
+INFO:root:Pod Deployment_AX-pod-3 Requests handled: 0
+INFO:root:-------------------------------------------------------------------------------------------
+INFO:root:----- Worker node CPU utilisation metrics -----
+INFO:root:-----------------------------------------------
+INFO:root:Worker Node_2 Max CPU Utilization: 5/5 (100.0%)
+INFO:root:Worker Node_1 Max CPU Utilization: 4/4 (100.0%)
+INFO:root:Worker Node_3 Max CPU Utilization: 4/4 (100.0%)
+INFO:root:-------------------------------------------------------------------------------------------

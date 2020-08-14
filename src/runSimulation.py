@@ -12,7 +12,7 @@ import os
 #This is the simulation frontend that will interact with your APIServer to change cluster configurations and handle requests
 #All building files are guidelines, and you are welcome to change them as much as desired so long as the required functionality is still implemented.
 
-TRACEFILE = "req_in_failure.txt"
+TRACEFILE = "instructions_seed_3.txt"
 SRC_PATH = os.getcwd()
 
 _nodeCtlLoop = 5

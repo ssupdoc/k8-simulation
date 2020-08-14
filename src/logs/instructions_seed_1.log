@@ -1,0 +1,49 @@
+INFO:root:----- Request throughput -----
+INFO:root:------------------------------
+INFO:root:Req 5 - Execution time 7s took 7.0077s STATUS: PROCESSED
+INFO:root:Req 7 - Execution time 9s took 9.0031s STATUS: PROCESSED
+INFO:root:Req 8 - Execution time 3s took 3.0059s STATUS: PROCESSED
+INFO:root:Req 12 - Execution time 7s took 7.0031s STATUS: PROCESSED
+INFO:root:Req 14 - Execution time 3s took 3.006s STATUS: PROCESSED
+INFO:root:Req 15 - Execution time 2s took 2.0062s STATUS: PROCESSED
+INFO:root:Req 16 - Execution time 3s took 3.0039s STATUS: PROCESSED
+INFO:root:Req 18 - Execution time 5s took 5.0031s STATUS: PROCESSED
+INFO:root:Req 20 - Execution time 4s took 4.0023s STATUS: PROCESSED
+INFO:root:-------------------------------------------------------------------------------------------
+INFO:root:----- Request Success -----
+INFO:root:------------------------------
+INFO:root:Successful requests: 9/9
+INFO:root:Average wait time of successful requests: 0.0046s
+INFO:root:-------------------------------------------------------------------------------------------
+INFO:root:----- Request Failure -----
+INFO:root:------------------------------
+INFO:root:Failed requests: 0/9
+INFO:root:Average wait time of failed requests: 0s
+INFO:root:-------------------------------------------------------------------------------------------
+INFO:root:----- Deployment wise metrics -----
+INFO:root:------------------------------
+INFO:root:Deployment label: Deployment_AA with 3 requests
+INFO:root:Average wait time of requests: 0.006s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AB with 3 requests
+INFO:root:Average wait time of requests: 0.003s
+INFO:root:Successful requests: 100.0%
+INFO:root:Deployment label: Deployment_AC with 3 requests
+INFO:root:Average wait time of requests: 0.005s
+INFO:root:Successful requests: 100.0%
+INFO:root:-------------------------------------------------------------------------------------------
+INFO:root:----- Pod list by max requests handled -----
+INFO:root:--------------------------------------------
+INFO:root:Pod Deployment_AB-pod-1 Requests handled: 3
+INFO:root:Pod Deployment_AC-pod-1 Requests handled: 3
+INFO:root:Pod Deployment_AA-pod-2 Requests handled: 2
+INFO:root:Pod Deployment_AA-pod-1 Requests handled: 1
+INFO:root:Pod Deployment_AB-pod-2 Requests handled: 0
+INFO:root:Pod Deployment_AC-pod-2 Requests handled: 0
+INFO:root:-------------------------------------------------------------------------------------------
+INFO:root:----- Worker node CPU utilisation metrics -----
+INFO:root:-----------------------------------------------
+INFO:root:Worker Node_1 Max CPU Utilization: 4/4 (100.0%)
+INFO:root:Worker Node_2 Max CPU Utilization: 0/5 (0.0%)
+INFO:root:Worker Node_3 Max CPU Utilization: 0/5 (0.0%)
+INFO:root:-------------------------------------------------------------------------------------------
