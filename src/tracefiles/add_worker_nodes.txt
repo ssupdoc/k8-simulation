@@ -1,3 +1,0 @@
-AddNode Node_1 4
-AddNode Node_2 5
-AddNode Node_3 5
