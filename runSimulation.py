@@ -62,7 +62,7 @@ for command in commands:
 	with apiServer.etcdLock:
 		if cmdAttributes[0] == 'Deploy':
 			apiServer.CreateDeployment(cmdAttributes[1:])
-			deployment = apiServer.GetDepByLabelcmdAttributes[1]
+			# deployment = apiServer.GetDepByLabelcmdAttributes[1]
 			#loadbalancer = LoadBalancer(apiServer, deployment)
 			#lbThread = threading.Thread(target=loadbalancer)
 			#lbThread.start()
