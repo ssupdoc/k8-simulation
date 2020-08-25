@@ -1,14 +1,31 @@
 from src.api_server import APIServer
 import threading
 from src.dep_controller import DepController
+from src.req_handler import ReqHandler
+from src.node_controller import NodeController
+from src.scheduler import Scheduler
 import unittest
 import time
 
-apiServer = APIServer()
+_nodeCtlLoop = 2
 _depCtlLoop = 2
+_scheduleCtlLoop =2
+
+apiServer = APIServer()
 depController = DepController(apiServer, _depCtlLoop)
+nodeController = NodeController(apiServer, _nodeCtlLoop)
+reqHandler = ReqHandler(apiServer)
+scheduler = Scheduler(apiServer, _scheduleCtlLoop)
 depControllerThread = threading.Thread(target=depController)
+nodeControllerThread = threading.Thread(target=nodeController)
+reqHandlerThread = threading.Thread(target=reqHandler)
+schedulerThread = threading.Thread(target = scheduler)
+print("Threads Starting")
+reqHandlerThread.start()
+nodeControllerThread.start()
 depControllerThread.start()
+schedulerThread.start()
+print("ReadingFile")
 
 instructions = open("tracefiles/add_deployment.txt", "r")
 commands = instructions.readlines()
@@ -23,9 +40,17 @@ for command in commands:
 
 time.sleep(5)
 
+print("Shutting down threads")
+
+reqHandler.running = False
 depController.running = False
+scheduler.running = False
+nodeController.running = False
 apiServer.requestWaiting.set()
 depControllerThread.join()
+schedulerThread.join()
+nodeControllerThread.join()
+reqHandlerThread.join()
 
 class TestAddDeployment(unittest.TestCase):
 	def test_deployment_length(self):
@@ -40,4 +65,4 @@ class TestAddDeployment(unittest.TestCase):
 
 class TestAddPods(unittest.TestCase):
 	def test_pod_length(self):
-		self.assertEqual(len(apiServer.GetPending()), 2)
+		self.assertEqual(len(apiServer.etcd.runningPodList), 2)

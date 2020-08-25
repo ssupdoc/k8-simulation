@@ -27,7 +27,7 @@ depControllerThread.start()
 schedulerThread.start()
 print("ReadingFile")
 
-instructions = open("tracefiles/add_deployment.txt", "r")
+instructions = open("tracefiles/simple_request.txt", "r")
 commands = instructions.readlines()
 for command in commands:
 	cmdAttributes = command.split()
@@ -37,6 +37,14 @@ for command in commands:
 			apiServer.CreateDeployment(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'AddNode':
 			apiServer.CreateWorker(cmdAttributes[1:])
+		elif cmdAttributes[0] == 'ReqIn':
+			apiServer.PushReq(cmdAttributes[1:])
+		elif cmdAttributes[0] == 'DeleteDeployment':
+			apiServer.RemoveDeployment(cmdAttributes[1:])
+	if cmdAttributes[0] == 'Sleep':
+		time.sleep(int(cmdAttributes[1]))
+	time.sleep(3)
+    
 
 time.sleep(5)
 
@@ -52,16 +60,9 @@ schedulerThread.join()
 nodeControllerThread.join()
 reqHandlerThread.join()
 
-class TestEndPoints(unittest.TestCase):
-	def test_end_point_length(self):
-		self.assertEqual(len(apiServer.GetEndPointsByLabel('Deployment_AA')), 2)
-
 class TestPods(unittest.TestCase):
-	def test_pod_length(self):
-		self.assertEqual(len(apiServer.GetPending()), 0)
-		self.assertEqual(len(apiServer.etcd.runningPodList), 2)
-
-class TestWorkers(unittest.TestCase):
-    def test_node_cpus(self):
-        worker = apiServer.etcd.nodeList[0]
-        self.assertEqual(worker.available_cpu, 0)
+	def test_pod_cpu(self):
+		pod = apiServer.etcd.runningPodList[0]
+		self.assertEqual(pod.available_cpu, pod.assigned_cpu)
+	def test_running_pods(self):
+		self.assertEqual(len(apiServer.etcd.runningPodList), 1)

@@ -1,24 +1,31 @@
 from src.api_server import APIServer
 import threading
 from src.dep_controller import DepController
-from src.scheduler import Scheduler
+from src.req_handler import ReqHandler
 from src.node_controller import NodeController
+from src.scheduler import Scheduler
 import unittest
 import time
 
-apiServer = APIServer()
-_depCtlLoop = 2
-depController = DepController(apiServer, _depCtlLoop)
-depControllerThread = threading.Thread(target=depController)
-depControllerThread.start()
-_scheduleCtlLoop =2
-scheduler = Scheduler(apiServer, _scheduleCtlLoop)
-schedulerThread = threading.Thread(target = scheduler)
-schedulerThread.start()
 _nodeCtlLoop = 2
+_depCtlLoop = 2
+_scheduleCtlLoop =2
+
+apiServer = APIServer()
+depController = DepController(apiServer, _depCtlLoop)
 nodeController = NodeController(apiServer, _nodeCtlLoop)
+reqHandler = ReqHandler(apiServer)
+scheduler = Scheduler(apiServer, _scheduleCtlLoop)
+depControllerThread = threading.Thread(target=depController)
 nodeControllerThread = threading.Thread(target=nodeController)
+reqHandlerThread = threading.Thread(target=reqHandler)
+schedulerThread = threading.Thread(target = scheduler)
+print("Threads Starting")
+reqHandlerThread.start()
 nodeControllerThread.start()
+depControllerThread.start()
+schedulerThread.start()
+print("ReadingFile")
 
 instructions = open("tracefiles/delete_deployment.txt", "r")
 commands = instructions.readlines()
@@ -36,6 +43,9 @@ for command in commands:
 
 time.sleep(5)
 
+print("Shutting down threads")
+
+reqHandler.running = False
 depController.running = False
 scheduler.running = False
 nodeController.running = False
@@ -43,6 +53,7 @@ apiServer.requestWaiting.set()
 depControllerThread.join()
 schedulerThread.join()
 nodeControllerThread.join()
+reqHandlerThread.join()
 
 class TestEndPoints(unittest.TestCase):
 	def test_end_point_length(self):

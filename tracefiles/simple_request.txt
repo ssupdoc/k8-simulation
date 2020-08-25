@@ -1,0 +1,4 @@
+AddNode Node_1 1
+Deploy Deployment_AA 1 1
+Sleep 5
+ReqIn 5 Deployment_AA 7
