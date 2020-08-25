@@ -39,7 +39,9 @@ for command in commands:
 			apiServer.CreateWorker(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'CrashPod':
 			apiServer.CrashPod(cmdAttributes[1:])
-		time.sleep(3)
+	if cmdAttributes[0] == 'Sleep':
+		time.sleep(int(cmdAttributes[1]))
+	time.sleep(3)
 
 time.sleep(5)
 
