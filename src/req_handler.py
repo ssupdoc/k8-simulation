@@ -19,9 +19,17 @@ class ReqHandler:
 			for request in requests:
 				endPoints = self.apiServer.GetEndPointsByLabel(request.deploymentLabel)
 				if len(endPoints)>0:
-					pod = endPoints[0].pod
+					pod = self.FindFirstAvailablePod(endPoints)
 					pod.HandleRequest(request)
 				else:
 					print("No pod available to handle Request_"+request.label)
 				self.apiServer.requestWaiting.clear()
 		print("ReqHandlerShutdown")
+
+	def FindFirstAvailablePod(self, endPoints):
+		pod = endPoints[0].pod
+		for endPoint in endPoints:
+			if endPoint.pod.available_cpu > 0:
+				pod = endPoint.pod
+				break
+		return pod

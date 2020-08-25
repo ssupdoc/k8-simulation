@@ -10,7 +10,6 @@ import threading
 #deploymentLabel is the label of the Deployment that the Pod is managed by
 #status is a string that communicates the Pod's availability. ['PENDING','RUNNING', 'TERMINATING', 'FAILED']
 #the pool is the threads that are available for request handling on the pod
-#reqs are the active or queued requests
 class Pod:
 	def __init__(self, NAME, ASSIGNED_CPU, DEPLABEL):
 		self.podName = NAME
@@ -20,15 +19,17 @@ class Pod:
 		self.status = "PENDING"
 		self.crash = threading.Event()
 		self.pool = ThreadPoolExecutor(max_workers=ASSIGNED_CPU)
-		self.requests = []
 
 	def HandleRequest(self, REQUEST):
 		def ThreadHandler():
 			crashStatus = self.crash.wait(timeout=REQUEST.execTime)
+			self.available_cpu += 1
 			if crashStatus:
 				print("Request_"+REQUEST.label+" failed")
 			else: 
 				print("Request_"+REQUEST.label+" Completed")
-		self.requests.append(self.pool.submit(ThreadHandler))	
+		self.available_cpu -= 1
+		self.pool.submit(ThreadHandler)
+		print("Request_"+REQUEST.label+" is handled by POD " + self.podName + " Remaining CPUs: " + str(self.available_cpu))
 	
 	
