@@ -1,6 +1,6 @@
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
-from request import Request
+from src.request import Request
 import threading
 
 #The Pod is the unit of scaling within Kubernetes. It encapsulates the running containerized application

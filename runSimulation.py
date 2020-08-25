@@ -1,10 +1,10 @@
 import threading
-from request import Request
-from dep_controller import DepController
-from api_server import APIServer
-from req_handler import ReqHandler
-from node_controller import NodeController
-from scheduler import Scheduler
+from src.request import Request
+from src.dep_controller import DepController
+from src.api_server import APIServer
+from src.req_handler import ReqHandler
+from src.node_controller import NodeController
+from src.scheduler import Scheduler
 #from hpa import HPA
 #from load_balancer import LoadBalancer
 import time
@@ -54,7 +54,7 @@ schedulerThread.start()
 print("ReadingFile")
 
 #output = open("output.txt", "w")
-instructions = open("instructions.txt", "r")
+instructions = open("tracefiles/instructions.txt", "r")
 commands = instructions.readlines()
 for command in commands:
 	cmdAttributes = command.split()

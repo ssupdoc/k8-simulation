@@ -1,4 +1,4 @@
-from api_server import APIServer
+from src.api_server import APIServer
 import time
 
 #LoadBalancer distributes requests to pods in Deployments
@@ -8,6 +8,7 @@ class LoadBalancer:
 		self.apiServer = APISERVER
 		self.deployment = DEPLOYMENT
 		self.running = True
+		self.requests = []
 	
 	def __call__(self):
 		print("LoadBalancer start")

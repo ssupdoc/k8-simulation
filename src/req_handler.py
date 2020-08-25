@@ -1,4 +1,4 @@
-from api_server import APIServer
+from src.api_server import APIServer
 import time
 
 #reqHandler is a thread that continuously checks the pendingRequest queue and calls an associated pod to handle the incoming request.

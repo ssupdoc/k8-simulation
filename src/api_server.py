@@ -1,10 +1,10 @@
-from deployment import Deployment
-from end_point import EndPoint
-from etcd import Etcd
-from pod import Pod
-from MyController import PIDController
-from request import Request
-from worker_node import WorkerNode
+from src.deployment import Deployment
+from src.end_point import EndPoint
+from src.etcd import Etcd
+from src.pod import Pod
+from src.MyController import PIDController
+from src.request import Request
+from src.worker_node import WorkerNode
 import threading
 import random
 
