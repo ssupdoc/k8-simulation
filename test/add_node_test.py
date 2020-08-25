@@ -8,12 +8,10 @@ instructions = open("tracefiles/add_node.txt", "r")
 commands = instructions.readlines()
 for command in commands:
 	cmdAttributes = command.split()
-	print(str(cmdAttributes))
+	# print(str(cmdAttributes))
 	with apiServer.etcdLock:
 		if cmdAttributes[0] == 'AddNode':
 			apiServer.CreateWorker(cmdAttributes[1:])
-	time.sleep(3)
-time.sleep(5)
 
 
 class TestAddWorker(unittest.TestCase):
