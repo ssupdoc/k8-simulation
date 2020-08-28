@@ -98,6 +98,10 @@ class TestPriority(unittest.TestCase):
 		loadBalancer = GetLoadBalancerByDepLabel('Deployment_AB')
 		leastPriorityCount = FindLeastPriorityInQueue(loadBalancer)
 		self.assertEqual(leastPriorityCount, 6)
+	def test_Deployment_AA_Priority(self):
+		loadBalancer = GetLoadBalancerByDepLabel('Deployment_AA')
+		priorityItem = loadBalancer.balancer.FindPriorityQueueItem()
+		self.assertEqual(priorityItem.priority, 7)
 
 def GetLoadBalancerByDepLabel(deploymentLabel):
 	lbAudit = next(filter(lambda lb: lb.loadBalancer.deployment.deploymentLabel == deploymentLabel, loadBalancers), None)
