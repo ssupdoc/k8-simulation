@@ -30,6 +30,22 @@ def printStates(f, apiServer):
 			f.write(str(pod.podName)+"\n")
 		f.write("\n")
 
+class LoadBalancerAudit:
+	def __init__(self, loadBalancer, lbThread):
+		self.loadBalancer = loadBalancer
+		self.lbThread = lbThread
+
+def CleanupDeployments():
+	for deployment in apiServer.etcd.deploymentList:
+		TerminateLoadBalancer(deployment)
+
+def TerminateLoadBalancer(deployment):
+	lb = next(filter(lambda lb: lb.loadBalancer.deployment.deploymentLabel == deployment.deploymentLabel, loadBalancers), None)
+	if lb is not None:
+		lb.loadBalancer.running = False
+		lb.loadBalancer.deployment.waiting.set()
+		lb.lbThread.join()
+
 #This is the simulation frontend that will interact with your APIServer to change cluster configurations and handle requests
 #All building files are guidelines, and you are welcome to change them as much as desired so long as the required functionality is still implemented.
 
@@ -37,7 +53,7 @@ _nodeCtlLoop = 2
 _depCtlLoop = 2
 _scheduleCtlLoop =2
 
-# loadBalancerThreads = []
+loadBalancers = []
 
 apiServer = APIServer()
 depController = DepController(apiServer, _depCtlLoop)
@@ -65,13 +81,16 @@ for command in commands:
 		if cmdAttributes[0] == 'Deploy':
 			apiServer.CreateDeployment(cmdAttributes[1:])
 			deployment = apiServer.GetDepByLabel(cmdAttributes[1])
-			loadbalancer = LoadBalancer(apiServer, deployment)
-			lbThread = threading.Thread(target=loadbalancer)
+			loadBalancer = LoadBalancer(apiServer, deployment)
+			lbThread = threading.Thread(target=loadBalancer)
 			lbThread.start()
+			loadBalancers.append(LoadBalancerAudit(loadBalancer, lbThread))
 		elif cmdAttributes[0] == 'AddNode':
 			apiServer.CreateWorker(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'DeleteDeployment':
 			apiServer.RemoveDeployment(cmdAttributes[1:])
+			deployment = apiServer.GetDepByLabel(cmdAttributes[1])
+			TerminateLoadBalancer(deployment)
 		elif cmdAttributes[0] == 'ReqIn':
 			apiServer.PushReq(cmdAttributes[1:])
 		#elif cmdAttributes[0] == 'CreateHPA':
@@ -91,11 +110,9 @@ reqHandler.running = False
 depController.running = False
 scheduler.running = False
 nodeController.running = False
-# loadbalancer.running = False
 apiServer.requestWaiting.set()
-# loadbalancer.deployment.waiting.set()
 depControllerThread.join()
 schedulerThread.join()
 nodeControllerThread.join()
 reqHandlerThread.join()
-# lbThread.join()
+CleanupDeployments()

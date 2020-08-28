@@ -10,7 +10,7 @@ class LoadBalancer:
 		self.running = True
 	
 	def __call__(self):
-		print("LoadBalancer start")
+		print(f"LoadBalancer start -{self.deployment.deploymentLabel}")
 		while self.running:
 			self.deployment.waiting.wait()
 			with self.deployment.lock:
@@ -24,7 +24,7 @@ class LoadBalancer:
 				else:
 					print("No pod available to handle Request_"+request.label)
 			self.deployment.waiting.clear()
-		print("ReqHandlerShutdown")
+		print(f"LoadBalanceShutdown -{self.deployment.deploymentLabel}")
 
 
 	def FindFirstAvailablePod(self, endPoints):

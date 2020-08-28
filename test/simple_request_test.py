@@ -12,6 +12,24 @@ _nodeCtlLoop = 2
 _depCtlLoop = 2
 _scheduleCtlLoop =2
 
+loadBalancers = []
+
+class LoadBalancerAudit:
+	def __init__(self, loadBalancer, lbThread):
+		self.loadBalancer = loadBalancer
+		self.lbThread = lbThread
+
+def CleanupDeployments():
+	for deployment in apiServer.etcd.deploymentList:
+		TerminateLoadBalancer(deployment)
+
+def TerminateLoadBalancer(deployment):
+	lbAudit = next(filter(lambda lb: lb.loadBalancer.deployment.deploymentLabel == deployment.deploymentLabel, loadBalancers), None)
+	if lbAudit is not None:
+		lbAudit.loadBalancer.running = False
+		lbAudit.loadBalancer.deployment.waiting.set()
+		lbAudit.lbThread.join()
+
 apiServer = APIServer()
 depController = DepController(apiServer, _depCtlLoop)
 nodeController = NodeController(apiServer, _nodeCtlLoop)
@@ -37,15 +55,18 @@ for command in commands:
 		if cmdAttributes[0] == 'Deploy':
 			apiServer.CreateDeployment(cmdAttributes[1:])
 			deployment = apiServer.GetDepByLabel(cmdAttributes[1])
-			loadbalancer = LoadBalancer(apiServer, deployment)
-			lbThread = threading.Thread(target=loadbalancer)
+			loadBalancer = LoadBalancer(apiServer, deployment)
+			lbThread = threading.Thread(target=loadBalancer)
 			lbThread.start()
+			loadBalancers.append(LoadBalancerAudit(loadBalancer, lbThread))
 		elif cmdAttributes[0] == 'AddNode':
 			apiServer.CreateWorker(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'ReqIn':
 			apiServer.PushReq(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'DeleteDeployment':
 			apiServer.RemoveDeployment(cmdAttributes[1:])
+			deployment = apiServer.GetDepByLabel(cmdAttributes[1])
+			TerminateLoadBalancer(deployment)
 	if cmdAttributes[0] == 'Sleep':
 		time.sleep(int(cmdAttributes[1]))
 	time.sleep(3)
@@ -59,14 +80,12 @@ reqHandler.running = False
 depController.running = False
 scheduler.running = False
 nodeController.running = False
-loadbalancer.running = False
 apiServer.requestWaiting.set()
-loadbalancer.deployment.waiting.set()
 depControllerThread.join()
 schedulerThread.join()
 nodeControllerThread.join()
 reqHandlerThread.join()
-lbThread.join()
+CleanupDeployments()
 
 class TestPods(unittest.TestCase):
 	def test_pod_cpu(self):
