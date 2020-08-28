@@ -13,7 +13,7 @@ _depCtlLoop = 2
 _scheduleCtlLoop =2
 
 loadBalancers = []
-# Load balancer type ['round_robin', 'utilisation-aware']
+# Load balancer type ['round_robin', 'utilisation_aware']
 LOADBALANCERTYPE = 'round_robin'
 
 class LoadBalancerAudit:

@@ -1,18 +1,17 @@
 from src.abstract_load_balancer import AbstractLoadBalancer, LoadBalancerQueue
 
-
-class RoundRobinLoadBalancer(AbstractLoadBalancer):
+class UtilisationAwareLoadBalancer(AbstractLoadBalancer):
     def __init__(self, APISERVER, DEPLOYMENT):
         self.apiServer = APISERVER
         self.deployment = DEPLOYMENT
         self.internalQueue = []
 
     def UpdatePodList(self):
+        self.internalQueue.clear()
         endPoints = self.apiServer.GetEndPointsByLabel(self.deployment.deploymentLabel)
         for endPoint in endPoints:
-            pods_in_queue = list(map(lambda queue_item: queue_item.pod, self.internalQueue))
-            if endPoint.pod not in pods_in_queue:
-                queueItem = LoadBalancerQueue(endPoint.pod, self.FindLeastPriorityInQueue() + 1)
+            if endPoint.pod:
+                queueItem = LoadBalancerQueue(endPoint.pod, len(endPoint.pod.requests))
                 print(f"Adding priority of {queueItem.pod.podName} as {queueItem.priority}")
                 self.internalQueue.append(queueItem)
 
@@ -28,20 +27,5 @@ class RoundRobinLoadBalancer(AbstractLoadBalancer):
         if len(self.internalQueue) > 0:
             queueItem = self.FindPriorityQueueItem()
             if queueItem is not None:
-                self.RotatePriority(queueItem)
                 return queueItem.pod
         return None
-    
-    def FindLeastPriorityInQueue(self):
-        if len(self.internalQueue):
-            leastPriorityItem = self.internalQueue[0]
-            for queueItem in self.internalQueue:
-                if queueItem.priority > leastPriorityItem.priority:
-                    leastPriorityItem = queueItem
-            return leastPriorityItem.priority
-        else: 
-            return 0
-
-    def RotatePriority(self, queueItem):
-        queueItem.priority = self.FindLeastPriorityInQueue() + 1
-        print(f"Updating priority of {queueItem.pod.podName} to {queueItem.priority}")
