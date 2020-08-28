@@ -1,13 +1,19 @@
 from src.api_server import APIServer
+from src.round_robin_load_balancer import RoundRobinLoadBalancer
 import time
 
 #LoadBalancer distributes requests to pods in Deployments
 
 class LoadBalancer:
-	def __init__(self, APISERVER, DEPLOYMENT):
+	def __init__(self, APISERVER, DEPLOYMENT, TYPE):
 		self.apiServer = APISERVER
 		self.deployment = DEPLOYMENT
 		self.running = True
+
+		if TYPE == 'round_robin':
+			self.balancer = RoundRobinLoadBalancer(APISERVER, DEPLOYMENT)
+		elif TYPE == 'utilisation_aware':
+			pass
 	
 	def __call__(self):
 		print(f"LoadBalancer start -{self.deployment.deploymentLabel}")
@@ -17,20 +23,10 @@ class LoadBalancer:
 				requests = self.deployment.pendingReqs.copy()
 				self.deployment.pendingReqs.clear()
 			for request in requests:
-				endPoints = self.apiServer.GetEndPointsByLabel(request.deploymentLabel)
-				if len(endPoints)>0:
-					pod = self.FindFirstAvailablePod(endPoints)
-					pod.HandleRequest(request)
+				pod = self.balancer.FindPod()
+				if pod is not None:
+					self.balancer.AssignPod(request, pod)
 				else:
 					print("No pod available to handle Request_"+request.label)
 			self.deployment.waiting.clear()
 		print(f"LoadBalanceShutdown -{self.deployment.deploymentLabel}")
-
-
-	def FindFirstAvailablePod(self, endPoints):
-		pod = endPoints[0].pod
-		for endPoint in endPoints:
-			if endPoint.pod.available_cpu > 0:
-				pod = endPoint.pod
-				break
-		return pod

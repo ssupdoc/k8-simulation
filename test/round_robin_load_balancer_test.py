@@ -48,7 +48,7 @@ depControllerThread.start()
 schedulerThread.start()
 print("ReadingFile")
 
-instructions = open("tracefiles/simple_request.txt", "r")
+instructions = open("tracefiles/round_robin_load_balancer.txt", "r")
 commands = instructions.readlines()
 for command in commands:
 	cmdAttributes = command.split()
@@ -89,12 +89,27 @@ nodeControllerThread.join()
 reqHandlerThread.join()
 CleanupDeployments()
 
-class TestPods(unittest.TestCase):
-	def test_pod_cpu(self):
-		pod = apiServer.etcd.runningPodList[0]
-		self.assertEqual(pod.available_cpu, pod.assigned_cpu)
-	def test_running_pods(self):
-		self.assertEqual(len(apiServer.etcd.runningPodList), 1)
-	def test_requests(self):
-		pod = apiServer.etcd.runningPodList[0]
-		self.assertEqual(len(pod.requests), 0)
+class TestPriority(unittest.TestCase):
+	def test_Deployment_AA_least_priority(self):
+		loadBalancer = GetLoadBalancerByDepLabel('Deployment_AA')
+		leastPriorityCount = FindLeastPriorityInQueue(loadBalancer)
+		self.assertEqual(leastPriorityCount, 9)
+	def test_Deployment_AB_least_priority(self):
+		loadBalancer = GetLoadBalancerByDepLabel('Deployment_AB')
+		leastPriorityCount = FindLeastPriorityInQueue(loadBalancer)
+		self.assertEqual(leastPriorityCount, 6)
+
+def GetLoadBalancerByDepLabel(deploymentLabel):
+	lbAudit = next(filter(lambda lb: lb.loadBalancer.deployment.deploymentLabel == deploymentLabel, loadBalancers), None)
+	if lbAudit is not None:
+		return lbAudit.loadBalancer
+
+def FindLeastPriorityInQueue(loadBalancer):
+        if len(loadBalancer.balancer.internalQueue):
+            maxPriorityItem = loadBalancer.balancer.internalQueue[0]
+            for queueItem in loadBalancer.balancer.internalQueue:
+                if queueItem.priority > maxPriorityItem.priority:
+                    maxPriorityItem = queueItem
+            return maxPriorityItem.priority
+        else: 
+            return 0

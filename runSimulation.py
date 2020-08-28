@@ -54,6 +54,8 @@ _depCtlLoop = 2
 _scheduleCtlLoop =2
 
 loadBalancers = []
+# Load balancer type ['round_robin', 'utilisation-aware']
+LOADBALANCERTYPE = 'round_robin'
 
 apiServer = APIServer()
 depController = DepController(apiServer, _depCtlLoop)
@@ -81,7 +83,7 @@ for command in commands:
 		if cmdAttributes[0] == 'Deploy':
 			apiServer.CreateDeployment(cmdAttributes[1:])
 			deployment = apiServer.GetDepByLabel(cmdAttributes[1])
-			loadBalancer = LoadBalancer(apiServer, deployment)
+			loadBalancer = LoadBalancer(apiServer, deployment, LOADBALANCERTYPE)
 			lbThread = threading.Thread(target=loadBalancer)
 			lbThread.start()
 			loadBalancers.append(LoadBalancerAudit(loadBalancer, lbThread))
