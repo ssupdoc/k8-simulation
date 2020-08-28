@@ -17,19 +17,8 @@ class ReqHandler:
 				self.apiServer.etcd.pendingReqs.clear()
 				self.apiServer.requestWaiting.clear()
 			for request in requests:
-				endPoints = self.apiServer.GetEndPointsByLabel(request.deploymentLabel)
-				if len(endPoints)>0:
-					pod = self.FindFirstAvailablePod(endPoints)
-					pod.HandleRequest(request)
-				else:
-					print("No pod available to handle Request_"+request.label)
+				deployment = self.apiServer.GetDepByLabel(request.deploymentLabel)
+				deployment.pendingReqs.append(request)
+				deployment.waiting.set()
 				self.apiServer.requestWaiting.clear()
 		print("ReqHandlerShutdown")
-
-	def FindFirstAvailablePod(self, endPoints):
-		pod = endPoints[0].pod
-		for endPoint in endPoints:
-			if endPoint.pod.available_cpu > 0:
-				pod = endPoint.pod
-				break
-		return pod

@@ -6,7 +6,7 @@ from src.req_handler import ReqHandler
 from src.node_controller import NodeController
 from src.scheduler import Scheduler
 #from hpa import HPA
-#from load_balancer import LoadBalancer
+from src.load_balancer import LoadBalancer
 import time
 
 
@@ -37,6 +37,8 @@ _nodeCtlLoop = 2
 _depCtlLoop = 2
 _scheduleCtlLoop =2
 
+# loadBalancerThreads = []
+
 apiServer = APIServer()
 depController = DepController(apiServer, _depCtlLoop)
 nodeController = NodeController(apiServer, _nodeCtlLoop)
@@ -62,10 +64,10 @@ for command in commands:
 	with apiServer.etcdLock:
 		if cmdAttributes[0] == 'Deploy':
 			apiServer.CreateDeployment(cmdAttributes[1:])
-			# deployment = apiServer.GetDepByLabelcmdAttributes[1]
-			#loadbalancer = LoadBalancer(apiServer, deployment)
-			#lbThread = threading.Thread(target=loadbalancer)
-			#lbThread.start()
+			deployment = apiServer.GetDepByLabel(cmdAttributes[1])
+			loadbalancer = LoadBalancer(apiServer, deployment)
+			lbThread = threading.Thread(target=loadbalancer)
+			lbThread.start()
 		elif cmdAttributes[0] == 'AddNode':
 			apiServer.CreateWorker(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'DeleteDeployment':
@@ -89,8 +91,11 @@ reqHandler.running = False
 depController.running = False
 scheduler.running = False
 nodeController.running = False
+# loadbalancer.running = False
 apiServer.requestWaiting.set()
+# loadbalancer.deployment.waiting.set()
 depControllerThread.join()
 schedulerThread.join()
 nodeControllerThread.join()
 reqHandlerThread.join()
+# lbThread.join()
