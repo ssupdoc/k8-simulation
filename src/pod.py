@@ -19,17 +19,20 @@ class Pod:
 		self.status = "PENDING"
 		self.crash = threading.Event()
 		self.pool = ThreadPoolExecutor(max_workers=ASSIGNED_CPU)
+		self.requests = []
 
 	def HandleRequest(self, REQUEST):
 		def ThreadHandler():
 			crashStatus = self.crash.wait(timeout=REQUEST.execTime)
 			self.available_cpu += 1
+			self.requests.remove(REQUEST)
 			if crashStatus:
 				print("Request_"+REQUEST.label+" failed")
 			else: 
 				print("Request_"+REQUEST.label+" Completed")
 		self.available_cpu -= 1
+		self.requests.append(REQUEST)
 		self.pool.submit(ThreadHandler)
-		print("Request_"+REQUEST.label+" is handled by POD " + self.podName + " Remaining CPUs: " + str(self.available_cpu))
+		print(f"Request_{REQUEST.label} is handled by POD {self.podName}({self.assigned_cpu} CPUs) Load: {len(self.requests)}")
 	
 	

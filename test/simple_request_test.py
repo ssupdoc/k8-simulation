@@ -4,6 +4,7 @@ from src.dep_controller import DepController
 from src.req_handler import ReqHandler
 from src.node_controller import NodeController
 from src.scheduler import Scheduler
+from src.load_balancer import LoadBalancer
 import unittest
 import time
 
@@ -35,6 +36,10 @@ for command in commands:
 	with apiServer.etcdLock:
 		if cmdAttributes[0] == 'Deploy':
 			apiServer.CreateDeployment(cmdAttributes[1:])
+			deployment = apiServer.GetDepByLabel(cmdAttributes[1])
+			loadbalancer = LoadBalancer(apiServer, deployment)
+			lbThread = threading.Thread(target=loadbalancer)
+			lbThread.start()
 		elif cmdAttributes[0] == 'AddNode':
 			apiServer.CreateWorker(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'ReqIn':
@@ -54,11 +59,14 @@ reqHandler.running = False
 depController.running = False
 scheduler.running = False
 nodeController.running = False
+loadbalancer.running = False
 apiServer.requestWaiting.set()
+loadbalancer.deployment.waiting.set()
 depControllerThread.join()
 schedulerThread.join()
 nodeControllerThread.join()
 reqHandlerThread.join()
+lbThread.join()
 
 class TestPods(unittest.TestCase):
 	def test_pod_cpu(self):
@@ -66,3 +74,6 @@ class TestPods(unittest.TestCase):
 		self.assertEqual(pod.available_cpu, pod.assigned_cpu)
 	def test_running_pods(self):
 		self.assertEqual(len(apiServer.etcd.runningPodList), 1)
+	def test_requests(self):
+		pod = apiServer.etcd.runningPodList[0]
+		self.assertEqual(len(pod.requests), 0)
