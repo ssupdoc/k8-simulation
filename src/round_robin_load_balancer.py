@@ -11,16 +11,19 @@ class RoundRobinLoadBalancer(AbstractLoadBalancer):
         endPoints = self.apiServer.GetEndPointsByLabel(self.deployment.deploymentLabel)
         for endPoint in endPoints:
             pods_in_queue = list(map(lambda queue_item: queue_item.pod, self.internalQueue))
-            if endPoint.pod not in pods_in_queue:
+            if endPoint.pod not in pods_in_queue and endPoint.pod.isRunning():
                 queueItem = LoadBalancerQueue(endPoint.pod, self.FindLeastPriorityInQueue() + 1)
                 print(f"Adding priority of {queueItem.pod.podName} as {queueItem.priority}")
                 self.internalQueue.append(queueItem)
 
-    def FindPriorityQueueItem(self):
-        priorityQueueItem = self.internalQueue[0]
+    def FindPriorityQueueItem(self): 
+        priorityQueueItem = None
         for queueItem in self.internalQueue:
-            if queueItem.priority < priorityQueueItem.priority:
-                priorityQueueItem = queueItem
+            if queueItem.pod.isRunning():
+                if priorityQueueItem is None:
+                    priorityQueueItem = queueItem
+                elif queueItem.priority < priorityQueueItem.priority:
+                    priorityQueueItem = queueItem
         return priorityQueueItem
 
     def FindPod(self):

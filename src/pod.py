@@ -34,5 +34,8 @@ class Pod:
 		self.requests.append(REQUEST)
 		self.pool.submit(ThreadHandler)
 		print(f"Request_{REQUEST.label} is handled by POD {self.podName}({self.assigned_cpu} CPUs) Load: {len(self.requests)}")
+
+	def isRunning(self):
+		return self.status == 'RUNNING'
 	
 	

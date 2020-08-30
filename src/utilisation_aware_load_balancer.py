@@ -10,7 +10,7 @@ class UtilisationAwareLoadBalancer(AbstractLoadBalancer):
         self.internalQueue.clear()
         endPoints = self.apiServer.GetEndPointsByLabel(self.deployment.deploymentLabel)
         for endPoint in endPoints:
-            if endPoint.pod:
+            if endPoint.pod and endPoint.pod.isRunning():
                 queueItem = LoadBalancerQueue(endPoint.pod, len(endPoint.pod.requests))
                 print(f"Adding priority of {queueItem.pod.podName} as {queueItem.priority}")
                 self.internalQueue.append(queueItem)
