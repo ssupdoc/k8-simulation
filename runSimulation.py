@@ -5,7 +5,7 @@ from src.api_server import APIServer
 from src.req_handler import ReqHandler
 from src.node_controller import NodeController
 from src.scheduler import Scheduler
-#from hpa import HPA
+from src.hpa import HPA
 from src.load_balancer import LoadBalancer
 import time
 
@@ -52,6 +52,7 @@ def TerminateLoadBalancer(deployment):
 _nodeCtlLoop = 2
 _depCtlLoop = 2
 _scheduleCtlLoop =2
+_hpaCtlLoop =1
 
 loadBalancers = []
 # Load balancer type ['round_robin', 'utilisation-aware']
@@ -74,7 +75,7 @@ schedulerThread.start()
 print("ReadingFile")
 
 #output = open("output.txt", "w")
-instructions = open("tracefiles/instructions.txt", "r")
+instructions = open("tracefiles/hpa.txt", "r")
 commands = instructions.readlines()
 for command in commands:
 	cmdAttributes = command.split()
@@ -95,10 +96,10 @@ for command in commands:
 			TerminateLoadBalancer(deployment)
 		elif cmdAttributes[0] == 'ReqIn':
 			apiServer.PushReq(cmdAttributes[1:])
-		#elif cmdAttributes[0] == 'CreateHPA':
-			#hpa = HPA(apiServer, _hpaCtlLoop, cmdAttributes[1:])
-			#hpaThread = threading.Thread(target=hpa)
-			#hpaThread.start()
+		elif cmdAttributes[0] == 'CreateHPA':
+			hpa = HPA(apiServer, _hpaCtlLoop, cmdAttributes[1:])
+			hpaThread = threading.Thread(target=hpa)
+			hpaThread.start()
 		elif cmdAttributes[0] == 'CrashPod':
 			apiServer.CrashPod(cmdAttributes[1:])
 	if cmdAttributes[0] == 'Sleep':

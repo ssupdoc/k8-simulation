@@ -1,0 +1,6 @@
+AddNode Node_1 4
+CreateHPA Deployment_AA 75 11
+Deploy Deployment_AA 1 1
+ReqIn 5 Deployment_AA 2
+ReqIn 6 Deployment_AA 2
+ReqIn 7 Deployment_AA 2
