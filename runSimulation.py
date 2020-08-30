@@ -35,9 +35,15 @@ class LoadBalancerAudit:
 		self.loadBalancer = loadBalancer
 		self.lbThread = lbThread
 
+class HPAAudit:
+	def __init__(self, hpa, hpaThread):
+			self.hpa = hpa
+			self.hpaThread = hpaThread
+
 def CleanupDeployments():
 	for deployment in apiServer.etcd.deploymentList:
 		TerminateLoadBalancer(deployment)
+		TerminateHPA(deployment)
 
 def TerminateLoadBalancer(deployment):
 	lb = next(filter(lambda lb: lb.loadBalancer.deployment.deploymentLabel == deployment.deploymentLabel, loadBalancers), None)
@@ -46,13 +52,21 @@ def TerminateLoadBalancer(deployment):
 		lb.loadBalancer.deployment.waiting.set()
 		lb.lbThread.join()
 
+def TerminateHPA(deployment):
+	hpaAudit = next(filter(lambda hpaAudit: hpaAudit.hpa.deploymentLabel == deployment.deploymentLabel, hpaList), None)
+	if hpaAudit is not None:
+		hpaAudit.hpa.running = False
+		hpaAudit.hpaThread.join()
+
 #This is the simulation frontend that will interact with your APIServer to change cluster configurations and handle requests
 #All building files are guidelines, and you are welcome to change them as much as desired so long as the required functionality is still implemented.
 
 _nodeCtlLoop = 2
 _depCtlLoop = 2
 _scheduleCtlLoop =2
-_hpaCtlLoop =1
+_hpaCtlLoop =2
+
+hpaList = []
 
 loadBalancers = []
 # Load balancer type ['round_robin', 'utilisation-aware']
@@ -75,7 +89,7 @@ schedulerThread.start()
 print("ReadingFile")
 
 #output = open("output.txt", "w")
-instructions = open("tracefiles/hpa.txt", "r")
+instructions = open("instructions/hpa.txt", "r")
 commands = instructions.readlines()
 for command in commands:
 	cmdAttributes = command.split()
@@ -94,12 +108,14 @@ for command in commands:
 			apiServer.RemoveDeployment(cmdAttributes[1:])
 			deployment = apiServer.GetDepByLabel(cmdAttributes[1])
 			TerminateLoadBalancer(deployment)
+			TerminateHPA(deployment)
 		elif cmdAttributes[0] == 'ReqIn':
 			apiServer.PushReq(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'CreateHPA':
 			hpa = HPA(apiServer, _hpaCtlLoop, cmdAttributes[1:])
 			hpaThread = threading.Thread(target=hpa)
 			hpaThread.start()
+			hpaList.append(HPAAudit(hpa, hpaThread))
 		elif cmdAttributes[0] == 'CrashPod':
 			apiServer.CrashPod(cmdAttributes[1:])
 	if cmdAttributes[0] == 'Sleep':

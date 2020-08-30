@@ -17,6 +17,7 @@ class HPA:
 		self.loadMetrics = []
 	
 	def __call__(self):
+		print("HPA start for deployment " + self.deploymentLabel)
 		while self.running:
 			ctrl = self.apiServer.controller
 			endPoints = self.apiServer.GetEndPointsByLabel(self.deploymentLabel)
@@ -35,6 +36,7 @@ class HPA:
 				self.loadMetrics = []
 
 			time.sleep(self.time)
+		print("HPA shutdown deployment " + self.deploymentLabel)
 
 	# Returns the load calculated for pod utilisation in percentage
 	def getLoadForPod(self, pod):
