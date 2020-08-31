@@ -42,7 +42,7 @@ class HPA:
 
 				# If load fails to be within +-10% of setpoint
 				if self.calcAbsErrorPerc(self.setPoint, self.averageLoad) > 10:
-					# ctrl.SetState(self.prevState['t'], self.prevState['p']) # Previous state maintanence in HPA
+					ctrl.SetState(self.prevState['t'], self.prevState['p']) # Previous state maintanence in HPA
 					testAns = ctrl.work(self.setPoint - self.averageLoad)
 					if deployment is not None:
 						ctrlSuggestedReplicas = round(testAns['y'])

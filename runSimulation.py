@@ -7,11 +7,16 @@ from src.node_controller import NodeController
 from src.scheduler import Scheduler
 from src.hpa import HPA
 from src.load_balancer import LoadBalancer
+from src.constants import LoadBalancerType, Controller
 import time
 import matplotlib.pyplot as plt
 import sys
 
 TRACEFILE_NAME = "seed3_instructions"
+# Load balancer type ['round_robin', 'utilisation_aware']
+LOADBALANCERTYPE = LoadBalancerType.ROUND_ROBIN
+# Controller type ['pid', 'pi']
+CONTROLLERTYPE = Controller.PID
 
 def printStates(f, apiServer):
 	with apiServer.etcdLock:
@@ -85,19 +90,12 @@ _scheduleCtlLoop =2
 _hpaCtlLoop =2
 
 hpaList = []
-
 loadBalancers = []
-# Load balancer type ['round_robin', 'utilisation_aware']
-LOADBALANCERTYPE = 'round_robin'
-
-# Controller type ['pid', 'pi']
-CONTROLLERTYPE = 'pid'
-
 ctrlValues = [0, 0, 0]
 
 if(len(sys.argv) > 1):
 	ctrlValues = sys.argv[1:]
-	if CONTROLLERTYPE == 'pi' and len(ctrlValues) == 3:
+	if CONTROLLERTYPE == Controller.PI and len(ctrlValues) == 3:
 		ctrlValues[2] = 0
 
 apiServer = APIServer(ctrlValues=ctrlValues)

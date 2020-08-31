@@ -5,6 +5,7 @@ from src.req_handler import ReqHandler
 from src.node_controller import NodeController
 from src.scheduler import Scheduler
 from src.load_balancer import LoadBalancer
+from src.constants import LoadBalancerType
 import unittest
 import time
 
@@ -14,7 +15,7 @@ _scheduleCtlLoop =2
 
 loadBalancers = []
 # Load balancer type ['round_robin', 'utilisation-aware']
-LOADBALANCERTYPE = 'round_robin'
+LOADBALANCERTYPE = LoadBalancerType.ROUND_ROBIN
 
 class LoadBalancerAudit:
 	def __init__(self, loadBalancer, lbThread):

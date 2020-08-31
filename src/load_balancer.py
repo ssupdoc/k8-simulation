@@ -1,6 +1,7 @@
 from src.api_server import APIServer
 from src.round_robin_load_balancer import RoundRobinLoadBalancer
 from src.utilisation_aware_load_balancer import UtilisationAwareLoadBalancer
+from src.constants import LoadBalancerType
 import time
 
 #LoadBalancer distributes requests to pods in Deployments
@@ -11,9 +12,9 @@ class LoadBalancer:
 		self.deployment = DEPLOYMENT
 		self.running = True
 
-		if TYPE == 'round_robin':
+		if TYPE == LoadBalancerType.ROUND_ROBIN:
 			self.balancer = RoundRobinLoadBalancer(APISERVER, DEPLOYMENT)
-		elif TYPE == 'utilisation_aware':
+		elif TYPE == LoadBalancerType.UTILISATION_AWARE:
 			self.balancer = UtilisationAwareLoadBalancer(APISERVER, DEPLOYMENT)
 	
 	def __call__(self):
