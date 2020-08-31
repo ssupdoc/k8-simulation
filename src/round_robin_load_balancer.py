@@ -13,7 +13,6 @@ class RoundRobinLoadBalancer(AbstractLoadBalancer):
             pods_in_queue = list(map(lambda queue_item: queue_item.pod, self.internalQueue))
             if endPoint.pod not in pods_in_queue and endPoint.pod.isRunning():
                 queueItem = LoadBalancerQueue(endPoint.pod, self.FindLeastPriorityInQueue() + 1)
-                print(f"Adding priority of {queueItem.pod.podName} as {queueItem.priority}")
                 self.internalQueue.append(queueItem)
 
     def FindPriorityQueueItem(self): 
@@ -47,4 +46,3 @@ class RoundRobinLoadBalancer(AbstractLoadBalancer):
 
     def RotatePriority(self, queueItem):
         queueItem.priority = self.FindLeastPriorityInQueue() + 1
-        print(f"Updating priority of {queueItem.pod.podName} to {queueItem.priority}")

@@ -12,12 +12,12 @@ import random
 #the methods that can be called for cluster management
 
 class APIServer:
-	def __init__(self):
+	def __init__(self, ctrlValues = [0, 0, 0]):
 		self.etcd = Etcd()
 		self.etcdLock = threading.Lock()
 		self.kubeletList = [] 
 		self.requestWaiting = threading.Event()
-		self.controller = PIDController(0,0,0)#Tune your controller
+		self.controller = PIDController(ctrlValues[0], ctrlValues[1], ctrlValues[2])#Tune your controller
 	
 # 	GetDeployments method returns the list of deployments stored in etcd 	
 	def GetDeployments(self):

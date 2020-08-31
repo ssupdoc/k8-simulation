@@ -5,11 +5,15 @@
 
 class PIDController:
 	def __init__( self, kp, ki, kd):
-		self.kp = kp
-		self.ki = ki
-		self.kd = kd
+		self.kp = float(kp)
+		self.ki = float(ki)
+		self.kd = float(kd)
 		self.totalError = 0
 		self.prevError = 0
+
+	def SetState(self, t, p):
+		self.totalError = t
+		self.prevError = p
 	
 	def work( self, e):
 		self.totalError += e
@@ -20,4 +24,4 @@ class PIDController:
 		
 		self.prevError = e
 		
-		return up + ui + ud
+		return { 'y': up + ui + ud, 't': self.totalError, 'p': self.prevError }
