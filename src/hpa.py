@@ -36,7 +36,7 @@ class HPA:
 			if int(curTime - self.lastSync) >= self.syncPeriod:
 				self.averageLoad = self.getAverageLoad(self.loadMetrics)
 				# print(f'###Average load of {self.deploymentLabel}:  {self.averageLoad}###')
-				self.graph.record(self.setPoint, self.averageLoad)
+				self.graph.record(self.setPoint, self.averageLoad, deployment)
 				self.lastSync = time.time()
 				self.loadMetrics = []
 

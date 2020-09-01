@@ -6,7 +6,11 @@ class MeasurementGraph:
 		self.time = []
 		self.setPoint = []
 		self.output = []
-	def record(self, setPoint, output):
+		self.expectedReplicas = []
+		self.currentReplicas = []
+	def record(self, setPoint, output, deployment):
 		self.time.append(round(time.time() -  self.initTime))
 		self.setPoint.append(setPoint)
 		self.output.append(output)
+		self.expectedReplicas.append(deployment.expectedReplicas)
+		self.currentReplicas.append(deployment.currentReplicas)
