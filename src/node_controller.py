@@ -1,4 +1,4 @@
-from api_server import APIServer
+from src.api_server import APIServer
 import threading
 import time
 
@@ -7,24 +7,35 @@ import time
 #The NodeController will remove stale EndPoints and update to show changes in others
 class NodeController:
 	
-	def __init__(self, api_server, LOOPTIME):
-		self.api_server = api_server
+	def __init__(self, APISERVER, LOOPTIME):
+		self.apiServer = APISERVER
 		self.running = True
 		self.time = LOOPTIME
 	
 	def __call__(self):
 		print("NodeController start")
 		while self.running:
-			with self.api_server.etcd_lock:
-				end_point_list = self.api_server.GetEndPoints()
-				# Check endpoints for failed and terminating pods to deallocate CPUs and remove end points
-				obsolete_end_point = next(filter(lambda end_point: end_point.pod.IsDown(), end_point_list), None)
-				if obsolete_end_point:
-					pod = obsolete_end_point.pod
-					self.api_server.DeallocateCPUFromWorker(obsolete_end_point.node, pod.assigned_cpu)
-					if pod.IsFailed():
-						self.api_server.MoveToPending(pod)
-						pod.Reset()
-					self.api_server.RemoveEndPoint(obsolete_end_point)
+			pods = []
+			crashedPods = []
+			with self.apiServer.etcdLock:
+				for pod in self.apiServer.etcd.runningPodList:
+					if pod.status == "RUNNING":
+						pods.append(pod)
+					elif pod.status == "TERMINATING":
+						if len(pod.requests):
+							pods.append(pod)
+						else:
+							pod.pool.shutdown()
+					else:
+						crashedPods.append(pod)
+					self.apiServer.etcd.runningPodList = pods
+					for pod in crashedPods:
+						for endPoint in self.apiServer.etcd.endPointList:
+							if endPoint.pod == pod:
+								pod.status="PENDING"
+								pod.crash.clear()
+								self.apiServer.etcd.pendingPodList.append(pod)
+								self.apiServer.RemoveEndPoint(endPoint)
+								break
 			time.sleep(self.time)
 		print("NodeContShutdown")

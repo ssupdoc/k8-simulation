@@ -1,0 +1,4 @@
+AddNode Node_1 4
+Deploy Deployment_AA 1 2
+Sleep 5
+CrashPod Deployment_AA

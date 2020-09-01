@@ -1,9 +1,0 @@
-AddNode Node_1 4
-AddNode Node_2 5
-AddNode Node_3 5
-Deploy Deployment_AA 2 1
-ReqIn 5 Deployment_AA 7
-CrashPod Deployment_AA
-ReqIn 7 Deployment_AA 9
-ReqIn 8 Deployment_AA 3
-DeleteDeployment Deployment_AA

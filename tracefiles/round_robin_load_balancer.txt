@@ -1,0 +1,18 @@
+AddNode Node_1 3
+AddNode Node_2 3
+AddNode Node_3 3
+AddNode Node_4 3
+AddNode Node_5 3
+AddNode Node_6 3
+Deploy Deployment_AA 3 2
+Deploy Deployment_AB 3 2
+Sleep 5
+ReqIn 6 Deployment_AA 4
+ReqIn 7 Deployment_AB 4
+ReqIn 8 Deployment_AB 4
+ReqIn 9 Deployment_AA 4
+ReqIn 10 Deployment_AA 4
+ReqIn 11 Deployment_AA 4
+ReqIn 12 Deployment_AB 4
+ReqIn 13 Deployment_AA 4
+ReqIn 14 Deployment_AA 4
