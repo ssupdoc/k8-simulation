@@ -12,9 +12,9 @@ import time
 import matplotlib.pyplot as plt
 import sys
 
-TRACEFILE_NAME = "seed3_instructions"
+TRACEFILE_NAME = "seed1_instructions"
 # Load balancer type ['round_robin', 'utilisation_aware']
-LOADBALANCERTYPE = LoadBalancerType.ROUND_ROBIN
+LOADBALANCERTYPE = LoadBalancerType.UTILISATION_AWARE
 # Controller type ['pid', 'pi']
 CONTROLLERTYPE = Controller.PID
 
@@ -61,19 +61,29 @@ def TerminateLoadBalancer(deployment):
 		lb.lbThread.join()
 
 def PlotGraph():
-	plotNum = 221
-	plt.figure(1, figsize=(14,10))
+	plotNum = 321
+	plt.figure(1, figsize=(14,14))
 	for hpaAudit in hpaList:
 		plt.subplot(plotNum)
-		plt.title(hpaAudit.hpa.deploymentLabel)
+		plt.title(hpaAudit.hpa.deploymentLabel + " Avg Load")
 		plt.xlabel('Time')
 		plt.ylabel('Average load (%)')
-		plt.plot(hpaAudit.hpa.graph.time, hpaAudit.hpa.graph.setPoint, label="Set Point (y)")
+		plt.plot(hpaAudit.hpa.graph.time, hpaAudit.hpa.graph.setPoint, label="Set Point")
 		plt.plot(hpaAudit.hpa.graph.time, hpaAudit.hpa.graph.output, label="Output (y)")
 		plt.legend(loc="upper left")
 		plotNum += 1
+
+		plt.subplot(plotNum)
+		plt.title(hpaAudit.hpa.deploymentLabel + " Replicas")
+		plt.xlabel('Time')
+		plt.ylabel('Replicas')
+		plt.plot(hpaAudit.hpa.graph.time, hpaAudit.hpa.graph.expectedReplicas, label="Expected replicas")
+		plt.plot(hpaAudit.hpa.graph.time, hpaAudit.hpa.graph.currentReplicas, label="Current replicas")
+		plt.legend(loc="upper left")
+		plotNum += 1
+
 	ctrlTitle = "-".join(map(str, ctrlValues))
-	plt.savefig(f'graph/output_{TRACEFILE_NAME}_{ctrlTitle}_{LOADBALANCERTYPE}_{CONTROLLERTYPE}.png')
+	plt.savefig(f'graph/{TRACEFILE_NAME}/output_{TRACEFILE_NAME}_{ctrlTitle}_{LOADBALANCERTYPE}_{CONTROLLERTYPE}.png')
 
 def TerminateHPA(deployment):
 	hpaAudit = next(filter(lambda hpaAudit: hpaAudit.hpa.deploymentLabel == deployment.deploymentLabel, hpaList), None)
