@@ -23,36 +23,38 @@ class HPA:
 		print("HPA start for deployment " + self.deploymentLabel)
 		while self.running:
 			deployment = self.apiServer.GetDepByLabel(self.deploymentLabel)
-			ctrl = self.apiServer.controller
-			endPoints = self.apiServer.GetEndPointsByLabel(self.deploymentLabel)
-			if len(endPoints):
-				_deploymentLoad = 0
-				for endPoint in endPoints:
-					_deploymentLoad += self.getLoadForPod(endPoint.pod)
-				depAvgLoad = _deploymentLoad / len(endPoints)
-				self.loadMetrics.append(depAvgLoad)
+			if deployment is not None:
+				ctrl = self.apiServer.controller
+				endPoints = self.apiServer.GetEndPointsByLabel(self.deploymentLabel)
+				if len(endPoints):
+					_deploymentLoad = 0
+					for endPoint in endPoints:
+						_deploymentLoad += self.getLoadForPod(endPoint.pod)
+					depAvgLoad = _deploymentLoad / len(endPoints)
+					self.loadMetrics.append(depAvgLoad)
 
-			curTime = time.time()
-			if int(curTime - self.lastSync) >= self.syncPeriod:
-				self.averageLoad = self.getAverageLoad(self.loadMetrics)
-				# print(f'###Average load of {self.deploymentLabel}:  {self.averageLoad}###')
+				self.averageLoad = self.getAverageLoad(self.loadMetrics.copy())
 				self.graph.record(self.setPoint, self.averageLoad, deployment)
-				self.lastSync = time.time()
-				self.loadMetrics = []
 
-				# If load fails to be within +-10% of setpoint
-				if self.calcAbsErrorPerc(self.setPoint, self.averageLoad) > 10:
-					ctrl.SetState(self.prevState['t'], self.prevState['p']) # Previous state maintanence in HPA
-					testAns = ctrl.work(self.setPoint - self.averageLoad)
-					if deployment is not None:
-						ctrlSuggestedReplicas = round(testAns['y'])
-						self.prevState['t'] = testAns['t']
-						self.prevState['p'] = testAns['p']
-						if ctrlSuggestedReplicas <= 0:
-							ctrlSuggestedReplicas = 1
-						# print(f'Setting expected replicas to {ctrlSuggestedReplicas} from {deployment.expectedReplicas}')
-						deployment.expectedReplicas = ctrlSuggestedReplicas
+				curTime = time.time()
+				if int(curTime - self.lastSync) >= self.syncPeriod: # Check if the sliding window has expired
+					self.lastSync = time.time()
+					self.loadMetrics = []
 
+					# If load fails to be within +-10% of setpoint
+					if self.calcAbsErrorPerc(self.setPoint, self.averageLoad) > 10:
+						ctrl.SetState(self.prevState['t'], self.prevState['p']) # Previous state update in HPA
+						ctrlOutput = ctrl.work(self.averageLoad - self.setPoint)
+						ctrlDirection = ctrlOutput['y']
+						self.prevState['t'] = ctrlOutput['t']
+						self.prevState['p'] = ctrlOutput['p']
+						# Pod increment/decrement based on ctrl direction
+						if ctrlDirection <= 0:
+							deployment.expectedReplicas -= 1
+						else:
+							deployment.expectedReplicas += 1
+						if deployment.expectedReplicas <= 0: # expected replicas can never be less than 1
+								deployment.expectedReplicas = 1
 			time.sleep(self.time)
 		print("HPA shutdown deployment " + self.deploymentLabel)
 

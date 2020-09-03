@@ -2,7 +2,7 @@ from src.deployment import Deployment
 from src.end_point import EndPoint
 from src.etcd import Etcd
 from src.pod import Pod
-from src.MyController import PIDController
+from src.pid_controller import PIDController
 from src.request import Request
 from src.worker_node import WorkerNode
 import threading
