@@ -23,5 +23,5 @@ class PIDController:
 		ud = (e-self.prevError)*self.kd
 		
 		self.prevError = e
-		
-		return { 'y': up + ui + ud, 't': self.totalError, 'p': self.prevError }
+
+		return { 'y': round(up + ui + ud), 't': self.totalError, 'p': self.prevError }

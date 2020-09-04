@@ -1,0 +1,23 @@
+AddNode Node_1 100
+CreateHPA Deployment_AA 75 1
+Deploy Deployment_AA 5 2
+Sleep 5
+ReqIn 5 Deployment_AA 30
+Sleep 1
+ReqIn 6 Deployment_AA 30
+Sleep 1
+ReqIn 7 Deployment_AA 30
+Sleep 1
+ReqIn 8 Deployment_AA 30
+Sleep 1
+ReqIn 9 Deployment_AA 30
+Sleep 1
+ReqIn 10 Deployment_AA 30
+Sleep 1
+ReqIn 11 Deployment_AA 30
+Sleep 1
+ReqIn 12 Deployment_AA 30
+Sleep 1
+ReqIn 13 Deployment_AA 30
+Sleep 1
+DeleteDeployment Deployment_AA

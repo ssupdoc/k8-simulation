@@ -29,11 +29,10 @@ class Pod:
 			if crashStatus:
 				print("Request_"+REQUEST.label+" failed")
 			else: 
-				print("Request_"+REQUEST.label+" Completed")
+				print("Request_"+REQUEST.label+" completed")
 		self.available_cpu -= 1
 		self.requests.append(REQUEST)
 		self.pool.submit(ThreadHandler)
-		print(f"Request_{REQUEST.label} is handled by POD {self.podName}({self.assigned_cpu} CPUs) Load: {len(self.requests)}")
 
 	def isRunning(self):
 		return self.status == 'RUNNING'
