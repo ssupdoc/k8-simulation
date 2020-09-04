@@ -83,7 +83,8 @@ def PlotGraph():
 		plotNum += 1
 
 	ctrlTitle = "-".join(map(str, ctrlValues))
-	plt.savefig(f'graph/{TRACEFILE_NAME}/output_{TRACEFILE_NAME}_{ctrlTitle}_{LOADBALANCERTYPE}_{CONTROLLERTYPE}.png')
+	sub_folder = ("pid_" if CONTROLLERTYPE == Controller.PID else "pi_") + ("util" if LOADBALANCERTYPE == LoadBalancerType.UTILISATION_AWARE else "rr") 
+	plt.savefig(f'graph/{TRACEFILE_NAME}/{sub_folder}/output_{TRACEFILE_NAME}_{ctrlTitle}_{LOADBALANCERTYPE}_{CONTROLLERTYPE}.png')
 
 def TerminateHPA(deployment):
 	hpaAudit = next(filter(lambda hpaAudit: hpaAudit.hpa.deploymentLabel == deployment.deploymentLabel, hpaList), None)
