@@ -1,17 +1,19 @@
+import threading
+
 #Deployment objects set the configuration and expected number of Pod objects
 #deploymentLabel is the label associated with the deployment.
 #currentReplicas is the number of pods currently running that are associated with 
 #the Deployment.
 #expectedReplicas is the setpoint for the number of pods.
 #cpuCost is the amount of cpu that a pod must be assigned.
-import threading
 
 class Deployment:
 	def __init__(self, INFOLIST):
 		self.deploymentLabel = INFOLIST[0]
 		self.currentReplicas = 0
-		self.expectedReplicas = int(INFOLIST[2])
-		self.cpuCost = int(INFOLIST[1])
-		self.pendingReqs = []
-		self.waiting = threading.Event()
+		self.expectedReplicas = int(INFOLIST[1])
+		self.cpuCost = int(INFOLIST[2])
 		self.lock = threading.Lock()
+		self.waiting = threading.Event()
+		self.pendingReqs = []
+

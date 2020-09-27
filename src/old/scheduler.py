@@ -22,7 +22,7 @@ class Scheduler(threading.Thread):
 						if worker.status == "UP":
 							if worker.available_cpu >= pod.assigned_cpu:
 								pod.status = "RUNNING"
-								#print("Assigning Pod "+ pod.podName+" to Node "+worker.label)
+								print("Assigning Pod "+ pod.podName+" to Node "+worker.label)
 								worker.available_cpu -= pod.assigned_cpu
 								self.apiServer.CreateEndPoint(pod, worker)
 								self.apiServer.etcd.runningPodList.append(pod)

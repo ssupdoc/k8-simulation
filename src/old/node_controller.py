@@ -22,7 +22,7 @@ class NodeController:
 					if pod.status == "RUNNING":
 						pods.append(pod)
 					elif pod.status == "TERMINATING":
-						if not (all (p.done() for p in pod.requests)):
+						if len(pod.requests):
 							pods.append(pod)
 						else:
 							pod.pool.shutdown()
