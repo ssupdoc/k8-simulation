@@ -6,6 +6,7 @@ from src.req_handler import ReqHandler
 from src.node_controller import NodeController
 from src.scheduler import Scheduler
 import matplotlib.pyplot as plt
+import pandas as pd
 from src.hpa import HPA
 from src.load_balancer import LoadBalancer
 from src.supervisor import Supervisor
@@ -56,7 +57,7 @@ hpaThreads = []
 loadBalancerThreads = []
 supervisorThreads = []
 count = 0
-SEED = "ml_seed1_instructions"
+SEED = "instructions"
 instructions = open(f"tracefiles/{SEED}.txt", "r")
 commands = instructions.readlines()
 
@@ -182,7 +183,7 @@ depControllerThread.join()
 schedulerThread.join()
 nodeControllerThread.join()
 reqHandlerThread.join()
-fig, ((hpa1, hpa2, hpa3), (pp, ap, pr)) = plt.subplots(2,3)
+fig, ((hpa1, hpa2, hpa3), (pp, ap, pr), (h1, h2, h3)) = plt.subplots(3,3)
 hpa1.plot(hpas[0].xValues, hpas[0].setPoints, color='black', label = 'Setpoint Dep1')
 hpa1.plot(hpas[0].xValues, hpas[0].utilValues, color='blue', label = 'CPU util Dep1')
 hpa1.set_title('HPA for Deployment 1')
@@ -201,7 +202,30 @@ ap.plot(stepList, depPods3, color = 'red', label = 'Active Pods Dep3')
 pr.plot(stepList, dep1PendReqs, color='blue', label = 'Pending Requests Dep1')
 pr.plot(stepList, dep1PendReqs, color='green', label = 'Pending Requests Dep2')
 pr.plot(stepList, dep1PendReqs, color='red', label = 'Pending Requests Dep3')
+H1_Data = {
+	'Kp': supervisors[0].pValues,
+	'Ki': supervisors[0].iValues,
+	'avg_error': supervisors[0].avgErrors
+}
+h1_df = pd.DataFrame(H1_Data,columns=['Kp', 'Ki', 'avg_error'])
+H2_Data = {
+	'Kp': supervisors[1].pValues,
+	'Ki': supervisors[1].iValues,
+	'avg_error': supervisors[1].avgErrors
+}
+h2_df = pd.DataFrame(H2_Data,columns=['Kp', 'Ki', 'avg_error'])
+H3_Data = {
+	'Kp': supervisors[2].pValues,
+	'Ki': supervisors[2].iValues,
+	'avg_error': supervisors[2].avgErrors
+}
+h3_df = pd.DataFrame(H3_Data,columns=['Kp', 'Ki', 'avg_error'])
+h1.scatter(h1_df['Kp'], h1_df['avg_error'], color = 'blue', label = 'Kp')
+h1.scatter(h1_df['Ki'], h1_df['avg_error'], color = 'red', label = 'Ki')
+h2.scatter(h2_df['Kp'], h2_df['avg_error'], color = 'blue', label = 'Kp')
+h2.scatter(h2_df['Ki'], h2_df['avg_error'], color = 'red', label = 'Ki')
+h3.scatter(h3_df['Kp'], h3_df['avg_error'], color='blue', label = 'Kp')
+h3.scatter(h3_df['Ki'], h3_df['avg_error'], color='red', label = 'Ki')
 for ax in fig.get_axes():
 	ax.legend()
 plt.savefig(f'graph/{SEED}.png')
-plt.show()

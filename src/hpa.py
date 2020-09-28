@@ -1,6 +1,7 @@
 import threading
 import time
 from src.MyController import PIDController
+from src.supervisor import Supervisor
 #Your Horizontal Pod Autoscaler should monitor the average resource utilization of a deployment across
 #the specified time period and execute scaling actions based on this value. The period can be treated as a sliding window.
 
