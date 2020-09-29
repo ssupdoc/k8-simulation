@@ -41,7 +41,8 @@ class Supervisor:
 				self.pValues.append(self.hpa.pValue)
 				self.iValues.append(self.hpa.iValue)
 				self.avgErrors.append(sum(self.hpa.errors)/len(self.hpa.errors))
-				self.timestampAudit.append(round(time.time() - self.initialTimeStamp))
+				timeElapsed = round(time.time() - self.initialTimeStamp)
+				self.timestampAudit.append(timeElapsed)
 				self.hpa.errors.clear()
 				if(len(self.pValues) > 10):
 					self.performRegression()
@@ -49,6 +50,14 @@ class Supervisor:
 					(self.hpa.pValue, self.hpa.iValue)  = self.assignRandomValues(self.hpa.pValue, self.hpa.iValue)
 
 		print('Supervisor Shutdown')
+	
+	def calculateExponentialWeight(self, len):
+		a = 0.5
+		w0 = (1/(1-a))
+		weights = [w0]
+		for x in range(1, len):
+			weights.append(weights[x-1] * a)
+		return list(reversed(weights))
 		
 	def performRegression(self):
 		HPA_DATA = {
@@ -62,7 +71,7 @@ class Supervisor:
 		
 		X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.33, random_state=42)
 		self.regr = linear_model.LinearRegression()
-		self.regr.fit(X_train, y_train)
+		self.regr.fit(X_train, y_train, self.calculateExponentialWeight(len(X_train)))
 
 		score = self.regr.score(X_test, y_test)
 		self.scoreList.append(score)
