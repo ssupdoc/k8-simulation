@@ -5,6 +5,9 @@ import random
 import matplotlib.pyplot as plt
 from sklearn import linear_model
 import statsmodels.api as sm
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import LeaveOneOut
+import time
 CONSTRAINT = 0.1
 '''
 Your supervisory controller will analyse the trend of the error produced by your HPA controller
@@ -19,10 +22,13 @@ class Supervisor:
 		self.pValues = []
 		self.iValues = []
 		self.avgErrors = []
+		self.timestampAudit = []
 		self.indexes = []
 		self.running = True
 		self.index =0
 		self.regr = None
+		self.initialTimeStamp = time.time()
+		self.scoreList = []
 	def __call__(self):
 		while self.running:
 			self.index+=1
@@ -35,6 +41,7 @@ class Supervisor:
 				self.pValues.append(self.hpa.pValue)
 				self.iValues.append(self.hpa.iValue)
 				self.avgErrors.append(sum(self.hpa.errors)/len(self.hpa.errors))
+				self.timestampAudit.append(round(time.time() - self.initialTimeStamp))
 				self.hpa.errors.clear()
 				if(len(self.pValues) > 10):
 					self.performRegression()
@@ -52,8 +59,15 @@ class Supervisor:
 		df = pd.DataFrame(HPA_DATA,columns=['Kp', 'Ki', 'avg_error'])
 		X = df[['Kp','Ki']]
 		Y = df['avg_error']
+		
+		X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.33, random_state=42)
 		self.regr = linear_model.LinearRegression()
-		self.regr.fit(X, Y)
+		self.regr.fit(X_train, y_train)
+
+		score = self.regr.score(X_test, y_test)
+		self.scoreList.append(score)
+		print(f"Score for supervisor {self.hpa.deploymentLabel} is {score}")
+			
 
 	def assignRandomValues(self, prevP, prevI):
 		dp = round(random.uniform(-CONSTRAINT, CONSTRAINT), 2)
