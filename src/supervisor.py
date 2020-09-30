@@ -46,10 +46,26 @@ class Supervisor:
 				self.hpa.errors.clear()
 				if(len(self.pValues) > 10):
 					self.performRegression()
+					(self.hpa.pValue, self.hpa.iValue) = self.predictAdapation(self.hpa.pValue, self.hpa.iValue)
 				else:
 					(self.hpa.pValue, self.hpa.iValue)  = self.assignRandomValues(self.hpa.pValue, self.hpa.iValue)
 
 		print('Supervisor Shutdown')
+	
+	def predictAdapation(self, prevP, prevI):
+		options = generateOptions(CONSTRAINT)
+		err = 9999
+		nextP = 1
+		nextI = 1
+		for option in options:
+			newP = prevP + option
+			newI = prevI + (CONSTRAINT - abs(option))
+			[predictedErr] = self.regr.predict([[newP, newI]])
+			if abs(predictedErr) < err:
+				nextP = newP
+				nextI = newI
+		return (round(nextP, 3), round(nextI, 3))
+
 	
 	def calculateExponentialWeight(self, len):
 		a = 0.5
@@ -103,4 +119,12 @@ class Supervisor:
 		if ((abs(newP - prevP) + abs(newI - prevI)) > CONSTRAINT):
 			return False
 		return True
+
+def generateOptions(bound):
+	options = []
+	cur = -bound
+	while cur <= bound:
+		options.append(round(cur, 3))
+		cur += 0.005
+	return options
 				

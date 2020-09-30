@@ -57,7 +57,7 @@ hpaThreads = []
 loadBalancerThreads = []
 supervisorThreads = []
 count = 0
-SEED = "instructions"
+SEED = "ml_3"
 instructions = open(f"tracefiles/{SEED}.txt", "r")
 commands = instructions.readlines()
 
@@ -183,7 +183,7 @@ depControllerThread.join()
 schedulerThread.join()
 nodeControllerThread.join()
 reqHandlerThread.join()
-fig, ((hpa1, hpa2, hpa3), (pp, ap, pr), (h1, h2, h3)) = plt.subplots(3,3)
+fig, ((hpa1, hpa2, hpa3), (pp, ap, pr)) = plt.subplots(2,3)
 hpa1.plot(hpas[0].xValues, hpas[0].setPoints, color='black', label = 'Setpoint Dep1')
 hpa1.plot(hpas[0].xValues, hpas[0].utilValues, color='blue', label = 'CPU util Dep1')
 hpa1.set_title('HPA for Deployment 1')
@@ -202,6 +202,10 @@ ap.plot(stepList, depPods3, color = 'red', label = 'Active Pods Dep3')
 pr.plot(stepList, dep1PendReqs, color='blue', label = 'Pending Requests Dep1')
 pr.plot(stepList, dep1PendReqs, color='green', label = 'Pending Requests Dep2')
 pr.plot(stepList, dep1PendReqs, color='red', label = 'Pending Requests Dep3')
+for ax in fig.get_axes():
+	ax.legend()
+plt.savefig(f'graph/{SEED}_main.png')
+
 H1_Data = {
 	'Kp': supervisors[0].pValues,
 	'Ki': supervisors[0].iValues,
@@ -220,12 +224,19 @@ H3_Data = {
 	'avg_error': supervisors[2].avgErrors
 }
 h3_df = pd.DataFrame(H3_Data,columns=['Kp', 'Ki', 'avg_error'])
-h1.scatter(h1_df['Kp'], h1_df['avg_error'], color = 'blue', label = 'Kp')
-h1.scatter(h1_df['Ki'], h1_df['avg_error'], color = 'red', label = 'Ki')
-h2.scatter(h2_df['Kp'], h2_df['avg_error'], color = 'blue', label = 'Kp')
-h2.scatter(h2_df['Ki'], h2_df['avg_error'], color = 'red', label = 'Ki')
-h3.scatter(h3_df['Kp'], h3_df['avg_error'], color='blue', label = 'Kp')
-h3.scatter(h3_df['Ki'], h3_df['avg_error'], color='red', label = 'Ki')
-for ax in fig.get_axes():
-	ax.legend()
-plt.savefig(f'graph/{SEED}.png')
+
+fig, ((h1, h2, h3)) = plt.subplots(1,3, subplot_kw={"projection": "3d"}, figsize=(16, 8))
+h1.scatter(h1_df['Kp'], h1_df['Ki'], h1_df['avg_error'], color='blue')
+h1.set_xlabel('Kp')
+h1.set_ylabel('Ki')
+h1.set_zlabel('avg_error')
+h2.scatter(h2_df['Kp'], h2_df['Ki'], h2_df['avg_error'], color='blue')
+h2.set_xlabel('Kp')
+h2.set_ylabel('Ki')
+h2.set_zlabel('avg_error')
+h3.scatter(h3_df['Kp'], h3_df['Ki'], h3_df['avg_error'], color='blue')
+h3.set_xlabel('Kp')
+h3.set_ylabel('Ki')
+h3.set_zlabel('avg_error')
+
+plt.savefig(f'graph/{SEED}_errors.png')
