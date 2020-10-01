@@ -28,3 +28,9 @@ class TestUtilisation(unittest.TestCase):
 	def test_average_utilisation(self):
 		load = hpa.calculateAvgUtil(deployment, podList)
 		self.assertEqual(load, 0.5)
+
+class TestController(unittest.TestCase):
+	def test_controller_update(self):
+		hpa.updateController(10, 12)
+		self.assertEqual(hpa.controller.kp, 10)
+		self.assertEqual(hpa.controller.ki, 12)
