@@ -47,9 +47,10 @@ class Supervisor:
 				self.hpa.errors.clear()
 				if(len(self.pValues) > 10):
 					self.performRegression()
-					(self.hpa.pValue, self.hpa.iValue) = self.predictAdapation(self.hpa.pValue, self.hpa.iValue)
+					(pValue, iValue) = self.predictAdapation(self.hpa.pValue, self.hpa.iValue)
 				else:
-					(self.hpa.pValue, self.hpa.iValue)  = self.assignRandomValues(self.hpa.pValue, self.hpa.iValue)
+					(pValue, iValue)  = self.assignRandomValues(self.hpa.pValue, self.hpa.iValue)
+				self.hpa.updateController(pValue, iValue)
 
 		print('Supervisor Shutdown')
 	

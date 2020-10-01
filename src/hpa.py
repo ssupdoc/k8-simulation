@@ -96,3 +96,9 @@ class HPA:
 		else:
 			averageUtil = (deployment.cpuCost*len(pods)-availableCPUS)/(deployment.cpuCost*len(pods))
 		return averageUtil
+
+	def updateController(self, pValue, iValue):
+		self.pValue = pValue
+		self.iValue = iValue
+		self.controller.kp = pValue
+		self.controller.ki = iValue

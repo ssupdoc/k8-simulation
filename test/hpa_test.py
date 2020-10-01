@@ -34,3 +34,5 @@ class TestController(unittest.TestCase):
 		hpa.updateController(10, 12)
 		self.assertEqual(hpa.controller.kp, 10)
 		self.assertEqual(hpa.controller.ki, 12)
+		self.assertEqual(hpa.pValue, 10)
+		self.assertEqual(hpa.iValue, 12)
