@@ -24,16 +24,16 @@ except:
 nodes = []
 deployments = []
 hpas = []
-nodeMax = 5 #This value sets the maximum number of nodes. Alter this value to scale your resource pool.
+nodeMax = 8 #This value sets the maximum number of nodes. Alter this value to scale your resource pool.
 depMax =  3 #This value sets the maximum number of deployments that will be created.
 depA = 65 #DO NOT CHANGE THIS VALUE
 depB = 65 #DO NOT CHANGE THIS VALUE
-commandCount = 300 #This value determines how many requests will be generated. Alter it to change the duration of your experiment.
+commandCount = 1500 #This value determines how many requests will be generated. Alter it to change the duration of your experiment.
 separator = " "
 expRounds = []
 expProg = []
 xVals = []
-f = open("instructions.txt", "w")
+f = open(f"ml_{seed}.txt", "w")
 for x in range (1, commandCount+1): #Generates a set number of commands
 	commands = [] #Establishes the list of possible commands for this step
 	random.seed(idVal+x)
@@ -128,8 +128,8 @@ for x in range (1, commandCount+1): #Generates a set number of commands
 	"""
 	if choice == "CreateHPA":
 		setPoint = random.randint(60,90)
-		syncPeriod = random.randint(5,15)
-		calibratePeriod = random.randint(5,10)
+		syncPeriod = random.randint(5,6)
+		calibratePeriod = random.randint(5,8)
 		for deployment in deployments:
 			if not deployment in hpas:
 				command = separator.join([choice, deployment, str(setPoint), str(syncPeriod), str(calibratePeriod)])

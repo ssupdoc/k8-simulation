@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import LeaveOneOut
 import time
 CONSTRAINT = 0.1
+RANDOM_CONSTRAINT = 0.1
 '''
 Your supervisory controller will analyse the trend of the error produced by your HPA controller
 Your calibration of Kp and Ki should be based on linear regression following e = a.Kp+b.Ki+c
@@ -55,8 +56,8 @@ class Supervisor:
 	def predictAdapation(self, prevP, prevI):
 		options = generateOptions(CONSTRAINT)
 		err = 9999
-		nextP = 1
-		nextI = 1
+		nextP = prevP
+		nextI = prevI
 		for option in options:
 			newP = prevP + option
 			newI = prevI + (CONSTRAINT - abs(option))
@@ -95,15 +96,15 @@ class Supervisor:
 			
 
 	def assignRandomValues(self, prevP, prevI):
-		dp = round(random.uniform(-CONSTRAINT, CONSTRAINT), 2)
-		di = self.randomiseSign(CONSTRAINT - abs(dp))
+		dp = round(random.uniform(-RANDOM_CONSTRAINT, RANDOM_CONSTRAINT), 2)
+		di = self.randomiseSign(RANDOM_CONSTRAINT - abs(dp))
 		newP = prevP + dp
 		newI = prevI + di
-		if self.checkConstraint(prevP,newP, prevI, newI):
+		if self.checkConstraint(prevP,newP, prevI, newI, RANDOM_CONSTRAINT):
 			if newP < 0:
-				newP = 0
+				newP = 1
 			if newI < 0:
-				newI = 0
+				newI = 1
 			if newP == 0 and newI == 0:
 				(newP,newI) = self.assignRandomValues(prevP, prevI)
 		return (newP, newI)
@@ -115,8 +116,8 @@ class Supervisor:
 			firstDecimal = -1
 		return value * signConst
 	
-	def checkConstraint(self, prevP, prevI, newP, newI):
-		if ((abs(newP - prevP) + abs(newI - prevI)) > CONSTRAINT):
+	def checkConstraint(self, prevP, prevI, newP, newI, constraint):
+		if ((abs(newP - prevP) + abs(newI - prevI)) > constraint):
 			return False
 		return True
 

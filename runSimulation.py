@@ -207,23 +207,37 @@ for ax in fig.get_axes():
 plt.savefig(f'graph/{SEED}_main.png')
 
 H1_Data = {
+	'time': supervisors[0].timestampAudit,
 	'Kp': supervisors[0].pValues,
 	'Ki': supervisors[0].iValues,
-	'avg_error': supervisors[0].avgErrors
+	'avg_error': supervisors[0].avgErrors,
 }
-h1_df = pd.DataFrame(H1_Data,columns=['Kp', 'Ki', 'avg_error'])
+h1_df = pd.DataFrame(H1_Data,columns=['time', 'Kp', 'Ki', 'avg_error'])
+
+print(f"List of samples for {supervisors[0].hpa.deploymentLabel}")
+print(h1_df)
+
 H2_Data = {
+	'time': supervisors[1].timestampAudit,
 	'Kp': supervisors[1].pValues,
 	'Ki': supervisors[1].iValues,
 	'avg_error': supervisors[1].avgErrors
 }
-h2_df = pd.DataFrame(H2_Data,columns=['Kp', 'Ki', 'avg_error'])
+h2_df = pd.DataFrame(H2_Data,columns=['time', 'Kp', 'Ki', 'avg_error'])
+
+print(f"List of samples for {supervisors[1].hpa.deploymentLabel}")
+print(h2_df)
+
 H3_Data = {
+	'time': supervisors[2].timestampAudit,
 	'Kp': supervisors[2].pValues,
 	'Ki': supervisors[2].iValues,
 	'avg_error': supervisors[2].avgErrors
 }
-h3_df = pd.DataFrame(H3_Data,columns=['Kp', 'Ki', 'avg_error'])
+h3_df = pd.DataFrame(H3_Data,columns=['time', 'Kp', 'Ki', 'avg_error'])
+
+print(f"List of samples for {supervisors[2].hpa.deploymentLabel}")
+print(h3_df)
 
 fig, ((h1, h2, h3)) = plt.subplots(1,3, subplot_kw={"projection": "3d"}, figsize=(16, 8))
 h1.scatter(h1_df['Kp'], h1_df['Ki'], h1_df['avg_error'], color='blue')
