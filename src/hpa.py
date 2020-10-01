@@ -47,14 +47,7 @@ class HPA:
 						pods.append(pod)
 				if len(self.averages) >= windowLength:
 					self.averages.pop(0)
-				availableCPUS = 0
-				for pod in pods:
-					availableCPUS+=pod.available_cpu
-				if len(pods) == 0:
-					print('NO PODS')
-					averageUtil = 0
-				else:
-					averageUtil = (deployment.cpuCost*len(pods)-availableCPUS)/(deployment.cpuCost*len(pods))
+				averageUtil = self.calculateAvgUtil(deployment, pods)
 				self.averages.append(averageUtil)
 				periodAvg = sum(self.averages)/len(self.averages)
 				error = periodAvg-self.setPoint
@@ -92,3 +85,14 @@ class HPA:
 				self.periods = 0
 			time.sleep(self.time)
 		print("HPA Shutdown")
+	
+	def calculateAvgUtil(self, deployment, pods):
+		availableCPUS = 0
+		for pod in pods:
+			availableCPUS+=pod.available_cpu
+		if len(pods) == 0:
+			print('NO PODS')
+			averageUtil = 0
+		else:
+			averageUtil = (deployment.cpuCost*len(pods)-availableCPUS)/(deployment.cpuCost*len(pods))
+		return averageUtil
