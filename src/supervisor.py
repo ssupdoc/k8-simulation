@@ -47,14 +47,14 @@ class Supervisor:
 				self.hpa.errors.clear()
 				if(len(self.pValues) > 10):
 					self.performRegression()
-					(pValue, iValue) = self.predictAdapation(self.hpa.pValue, self.hpa.iValue)
+					(pValue, iValue) = self.predictAdapation(self.hpa.pValue, self.hpa.iValue, self.avgErrors[-1])
 				else:
 					(pValue, iValue)  = self.assignRandomValues(self.hpa.pValue, self.hpa.iValue)
 				self.hpa.updateController(pValue, iValue)
 
 		print('Supervisor Shutdown')
 	
-	def predictAdapation(self, prevP, prevI):
+	def predictAdapation(self, prevP, prevI, prevErr):
 		options = generateOptions(CONSTRAINT)
 		err = 9999
 		nextP = prevP
@@ -63,7 +63,7 @@ class Supervisor:
 			newP = prevP + option
 			newI = prevI + (CONSTRAINT - abs(option))
 			[predictedErr] = self.regr.predict([[newP, newI]])
-			if abs(predictedErr) < err:
+			if (abs(predictedErr) < err) and (abs(predictedErr) < abs(prevErr)):
 				nextP = newP
 				nextI = newI
 		return (round(nextP, 3), round(nextI, 3))
