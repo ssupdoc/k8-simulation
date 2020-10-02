@@ -53,7 +53,8 @@ class Supervisor:
 				self.hpa.updateController(pValue, iValue)
 
 		print('Supervisor Shutdown')
-	
+
+	# Predict the next possible tuning value closer to zero error	
 	def predictAdapation(self, prevP, prevI, prevErr):
 		options = generateOptions(CONSTRAINT)
 		err = 9999
@@ -61,7 +62,7 @@ class Supervisor:
 		nextI = prevI
 		for option in options:
 			newP = prevP + option
-			newI = prevI + (CONSTRAINT - abs(option))
+			newI = prevI + (CONSTRAINT - abs(option)) # constraint check
 			[predictedErr] = self.regr.predict([[newP, newI]])
 			if (abs(predictedErr) < err) and (abs(predictedErr) < abs(prevErr)):
 				nextP = newP
@@ -69,6 +70,7 @@ class Supervisor:
 		return (round(nextP, 3), round(nextI, 3))
 
 	
+	# Calculates exponential weight based on the length of input
 	def calculateExponentialWeight(self, len):
 		a = 0.5
 		w0 = (1/(1-a))
@@ -76,7 +78,8 @@ class Supervisor:
 		for x in range(1, len):
 			weights.append(weights[x-1] * a)
 		return list(reversed(weights))
-		
+
+	# Perform linear regression with test train split	
 	def performRegression(self):
 		HPA_DATA = {
 			'Kp': self.pValues,
@@ -95,7 +98,7 @@ class Supervisor:
 		self.scoreList.append(score)
 		print(f"Score for supervisor {self.hpa.deploymentLabel} is {score}")
 			
-
+	# Assign random kp and ki values following constraint
 	def assignRandomValues(self, prevP, prevI):
 		dp = round(random.uniform(-RANDOM_CONSTRAINT, RANDOM_CONSTRAINT), 2)
 		di = self.randomiseSign(RANDOM_CONSTRAINT - abs(dp))
@@ -110,6 +113,7 @@ class Supervisor:
 				(newP,newI) = self.assignRandomValues(prevP, prevI)
 		return (newP, newI)
 
+	# Randmoize the sign of the value
 	def randomiseSign(self, value):
 		signConst = 1
 		firstDecimal = int(value*10)
@@ -117,11 +121,13 @@ class Supervisor:
 			firstDecimal = -1
 		return value * signConst
 	
+	# Check whether the tuning values generated follows constraints
 	def checkConstraint(self, prevP, prevI, newP, newI, constraint):
 		if ((abs(newP - prevP) + abs(newI - prevI)) > constraint):
 			return False
 		return True
 
+# Generate all possible options in increment of 0.005 based on the bound specified
 def generateOptions(bound):
 	options = []
 	cur = -bound

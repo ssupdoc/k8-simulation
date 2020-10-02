@@ -4,7 +4,6 @@ from src.hpa import HPA
 from src.pod import Pod
 import unittest
 
-LOADBALANCERTYPE = 'utilisation_aware'
 DEPLOYMENT_INFO = ['Deployment_AA', 2, 2]
 HPA_INFO = ['Deployment_AA', 75, 10, 5]
 _hpaCtlLoop = 2
