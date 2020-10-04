@@ -5,111 +5,25 @@ from src.api_server import APIServer
 from src.req_handler import ReqHandler
 from src.node_controller import NodeController
 from src.scheduler import Scheduler
+import matplotlib.pyplot as plt
+import pandas as pd
 from src.hpa import HPA
 from src.load_balancer import LoadBalancer
-from src.constants import LoadBalancerType, Controller
+from src.supervisor import Supervisor
 import time
-import matplotlib.pyplot as plt
-import sys
 
-TRACEFILE_NAME = "seed1_instructions"
-# Load balancer type ['round_robin', 'utilisation_aware']
-LOADBALANCERTYPE = LoadBalancerType.UTILISATION_AWARE
-# Controller type ['pid', 'pi']
-CONTROLLERTYPE = Controller.PID
 
-def printStates(f, apiServer):
-	with apiServer.etcdLock:
-		Pending = apiServer.GetPending()
-		Nodes = apiServer.GetWorkers()
-		EndPoints = apiServer.GetEndPoints()
-		Deployments = apiServer.GetDeployments()
-		f.write("\n---NODES---\n")
-		for node in Nodes:
-			f.write(str(node.label)+" AVAILABLE CPU: "+str(node.available_cpu)+" ASSIGNED CPU: "+str(node.assigned_cpu)+"\n")
-		f.write("\n---DEPLOYMENTS---\n")
-		for dep in Deployments:
-			f.write(str(dep.deploymentLabel)+" COST: "+str(dep.cpuCost)+" EXPECTED REPLICAS: "+str(dep.expectedReplicas)+" CURRENT: "+str(dep.currentReplicas)+"\n")
-		f.write("\n---ENDPOINTS---\n")
-		for ep in EndPoints:
-			f.write(str(ep.deploymentLabel)+" NODE: "+str(ep.node.label)+" POD: "+str(ep.pod.podName)+"\n")
-		f.write("\n---PENDING PODS---\n")
-		for pod in Pending:
-			f.write(str(pod.podName)+"\n")
-		f.write("\n")
-
-class LoadBalancerAudit:
-	def __init__(self, loadBalancer, lbThread):
-		self.loadBalancer = loadBalancer
-		self.lbThread = lbThread
-
-class HPAAudit:
-	def __init__(self, hpa, hpaThread):
-			self.hpa = hpa
-			self.hpaThread = hpaThread
-
-def CleanupDeployments():
-	for deployment in apiServer.etcd.deploymentList:
-		TerminateLoadBalancer(deployment)
-		TerminateHPA(deployment)
-
-def TerminateLoadBalancer(deployment):
-	lb = next(filter(lambda lb: lb.loadBalancer.deployment.deploymentLabel == deployment.deploymentLabel, loadBalancers), None)
-	if lb is not None:
-		lb.loadBalancer.running = False
-		lb.loadBalancer.deployment.waiting.set()
-		lb.lbThread.join()
-
-def PlotGraph():
-	plotNum = 321
-	plt.figure(1, figsize=(14,14))
-	for hpaAudit in hpaList:
-		plt.subplot(plotNum)
-		plt.title(hpaAudit.hpa.deploymentLabel + " Avg Load")
-		plt.xlabel('Time')
-		plt.ylabel('Average load (%)')
-		plt.plot(hpaAudit.hpa.graph.time, hpaAudit.hpa.graph.setPoint, label="Set Point")
-		plt.plot(hpaAudit.hpa.graph.time, hpaAudit.hpa.graph.output, label="Output (y)")
-		plt.legend(loc="upper left")
-		plotNum += 1
-
-		plt.subplot(plotNum)
-		plt.title(hpaAudit.hpa.deploymentLabel + " Replicas")
-		plt.xlabel('Time')
-		plt.ylabel('Replicas')
-		plt.plot(hpaAudit.hpa.graph.time, hpaAudit.hpa.graph.expectedReplicas, label="Expected replicas")
-		plt.plot(hpaAudit.hpa.graph.time, hpaAudit.hpa.graph.currentReplicas, label="Current replicas")
-		plt.legend(loc="upper left")
-		plotNum += 1
-
-	ctrlTitle = "-".join(map(str, ctrlValues))
-	sub_folder = ("pid_" if CONTROLLERTYPE == Controller.PID else "pi_") + ("util" if LOADBALANCERTYPE == LoadBalancerType.UTILISATION_AWARE else "rr") 
-	plt.savefig(f'graph/{TRACEFILE_NAME}/{sub_folder}/output_{TRACEFILE_NAME}_{ctrlTitle}_{LOADBALANCERTYPE}_{CONTROLLERTYPE}.png')
-
-def TerminateHPA(deployment):
-	hpaAudit = next(filter(lambda hpaAudit: hpaAudit.hpa.deploymentLabel == deployment.deploymentLabel, hpaList), None)
-	if hpaAudit is not None:
-		hpaAudit.hpa.running = False
-		hpaAudit.hpaThread.join()
 
 #This is the simulation frontend that will interact with your APIServer to change cluster configurations and handle requests
 #All building files are guidelines, and you are welcome to change them as much as desired so long as the required functionality is still implemented.
 
-_nodeCtlLoop = 2
-_depCtlLoop = 2
-_scheduleCtlLoop =2
-_hpaCtlLoop =2
+_nodeCtlLoop = 1
+_depCtlLoop = 1
+_scheduleCtlLoop =1
+_hpaCtlLoop = 2
 
-hpaList = []
-loadBalancers = []
-ctrlValues = [0, 0, 0]
-
-if(len(sys.argv) > 1):
-	ctrlValues = sys.argv[1:]
-	if CONTROLLERTYPE == Controller.PI and len(ctrlValues) == 3:
-		ctrlValues[2] = 0
-
-apiServer = APIServer(ctrlValues=ctrlValues)
+kind = 'UA'
+apiServer = APIServer()
 depController = DepController(apiServer, _depCtlLoop)
 nodeController = NodeController(apiServer, _nodeCtlLoop)
 reqHandler = ReqHandler(apiServer)
@@ -124,52 +38,219 @@ nodeControllerThread.start()
 depControllerThread.start()
 schedulerThread.start()
 print("ReadingFile")
-
-#output = open("output.txt", "w")
-instructions = open(f"tracefiles/{TRACEFILE_NAME}.txt", "r")
+#Graphing information
+depPods1 = []
+depPods2 = []
+depPods3 = []
+depPendPods1 = []
+depPendPods2 = []
+depPendPods3 = []
+dep1PendReqs = []
+dep2PendReqs = []
+dep3PendReqs = []
+stepList = []
+#Simulation information
+loadBalancers = []
+hpas = []
+supervisors = []
+hpaThreads = []
+loadBalancerThreads = []
+supervisorThreads = []
+count = 0
+SEED = "ml_3"
+instructions = open(f"tracefiles/{SEED}.txt", "r")
 commands = instructions.readlines()
+
 for command in commands:
 	cmdAttributes = command.split()
-	# print(str(cmdAttributes))
+	print(str(command))
 	with apiServer.etcdLock:
 		if cmdAttributes[0] == 'Deploy':
 			apiServer.CreateDeployment(cmdAttributes[1:])
 			deployment = apiServer.GetDepByLabel(cmdAttributes[1])
-			loadBalancer = LoadBalancer(apiServer, deployment, LOADBALANCERTYPE)
-			lbThread = threading.Thread(target=loadBalancer)
+			loadbalancer = LoadBalancer(kind, apiServer, deployment)
+			lbThread = threading.Thread(target=loadbalancer)
 			lbThread.start()
-			loadBalancers.append(LoadBalancerAudit(loadBalancer, lbThread))
+			loadBalancers.append(loadbalancer)
+			loadBalancerThreads.append(lbThread)
 		elif cmdAttributes[0] == 'AddNode':
 			apiServer.CreateWorker(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'DeleteDeployment':
+			#We have to makesure that our load balancer will end gracefully here
+			for loadBalancer in loadBalancers:
+				if loadBalancer.deployment.deploymentLabel == cmdAttributes[1]:
+					loadBalancer.running=False
 			apiServer.RemoveDeployment(cmdAttributes[1:])
-			deployment = apiServer.GetDepByLabel(cmdAttributes[1])
-			TerminateLoadBalancer(deployment)
-			TerminateHPA(deployment)
 		elif cmdAttributes[0] == 'ReqIn':
 			apiServer.PushReq(cmdAttributes[1:])
 		elif cmdAttributes[0] == 'CreateHPA':
 			hpa = HPA(apiServer, _hpaCtlLoop, cmdAttributes[1:])
 			hpaThread = threading.Thread(target=hpa)
 			hpaThread.start()
-			hpaList.append(HPAAudit(hpa, hpaThread))
+			hpas.append(hpa)
+			hpaThreads.append(hpaThread)
+			supervisor = Supervisor(apiServer, hpa)
+			supervisorThread = threading.Thread(target=supervisor)
+			supervisorThread.start()
+			supervisors.append(supervisor)
+			supervisorThreads.append(supervisorThread)
 		elif cmdAttributes[0] == 'CrashPod':
 			apiServer.CrashPod(cmdAttributes[1:])
+	#The instructions will sleep after each round of requests. The following code stores values for graphing
 	if cmdAttributes[0] == 'Sleep':
-			time.sleep(int(cmdAttributes[1]))
-	#printStates(output, apiServer)
-	time.sleep(0)
+		count+=1
+		time.sleep(int(cmdAttributes[1]))
+		if len(apiServer.etcd.deploymentList) == 1:
+			depPods1.append(apiServer.etcd.deploymentList[0].expectedReplicas)
+			depPods2.append(0)
+			depPods3.append(0)
+			count1 = 0
+			for pod in apiServer.etcd.pendingPodList:
+				if pod.deploymentLabel ==apiServer.etcd.deploymentList[0].deploymentLabel:
+					count1+=1
+			depPendPods1.append(count1)
+			depPendPods2.append(0)
+			depPendPods3.append(0)
+			dep1PendReqs.append(len(apiServer.etcd.deploymentList[0].pendingReqs))
+			dep2PendReqs.append(0)
+			dep3PendReqs.append(0)
+		elif len(apiServer.etcd.deploymentList) == 2:
+			depPods1.append(apiServer.etcd.deploymentList[0].expectedReplicas)
+			depPods2.append(apiServer.etcd.deploymentList[1].expectedReplicas)
+			depPods3.append(0)
+			count1 = 0
+			count2 = 0
+			for pod in apiServer.etcd.pendingPodList:
+				if pod.deploymentLabel ==apiServer.etcd.deploymentList[0].deploymentLabel:
+					count1+=1
+				if pod.deploymentLabel ==apiServer.etcd.deploymentList[1].deploymentLabel:
+					count2+=1
+			depPendPods1.append(count1)
+			depPendPods2.append(count2)
+			depPendPods3.append(0)
+			dep1PendReqs.append(len(apiServer.etcd.deploymentList[0].pendingReqs))
+			dep2PendReqs.append(len(apiServer.etcd.deploymentList[1].pendingReqs))
+			dep3PendReqs.append(0)
+		elif len(apiServer.etcd.deploymentList) == 3:
+			depPods1.append(apiServer.etcd.deploymentList[0].expectedReplicas)
+			depPods2.append(apiServer.etcd.deploymentList[1].expectedReplicas)
+			depPods3.append(apiServer.etcd.deploymentList[2].expectedReplicas)
+			count1 = 0
+			count2 = 0
+			count3 = 0
+			for pod in apiServer.etcd.pendingPodList:
+				if pod.deploymentLabel ==apiServer.etcd.deploymentList[0].deploymentLabel:
+					count1+=1
+				if pod.deploymentLabel ==apiServer.etcd.deploymentList[1].deploymentLabel:
+					count2+=1
+				if pod.deploymentLabel ==apiServer.etcd.deploymentList[1].deploymentLabel:
+					count3+=1
+			depPendPods1.append(count1)
+			depPendPods2.append(count2)
+			depPendPods3.append(count3)
+			dep1PendReqs.append(len(apiServer.etcd.deploymentList[0].pendingReqs))
+			dep2PendReqs.append(len(apiServer.etcd.deploymentList[1].pendingReqs))
+			dep3PendReqs.append(len(apiServer.etcd.deploymentList[2].pendingReqs))
+		else:
+			depPods1.append(0)
+			depPods2.append(0)
+			depPods3.append(0)
+			depPendPods1.append(0)
+			depPendPods2.append(0)
+			depPendPods3.append(0)
+			dep1PendReqs.append(0)
+			dep2PendReqs.append(0)
+			dep3PendReqs.append(0)
+		#pendReqsList.append(len(apiServer.etcd.pendingReqs))
+		stepList.append(count)
 time.sleep(5)
 print("Shutting down threads")
-
+for hpa in hpas:
+	hpa.running = False
+	hpa.calibrate.set()
 reqHandler.running = False
 depController.running = False
 scheduler.running = False
 nodeController.running = False
 apiServer.requestWaiting.set()
+for lbthread in loadBalancerThreads:
+	lbthread.join()
+for hpathread in hpaThreads:
+	hpathread	.join()
+for supervisorThread in supervisorThreads:
+	supervisorThread.join()
 depControllerThread.join()
 schedulerThread.join()
 nodeControllerThread.join()
 reqHandlerThread.join()
-PlotGraph()
-CleanupDeployments()
+fig, ((hpa1, hpa2, hpa3), (pp, ap, pr)) = plt.subplots(2,3)
+hpa1.plot(hpas[0].xValues, hpas[0].setPoints, color='black', label = 'Setpoint Dep1')
+hpa1.plot(hpas[0].xValues, hpas[0].utilValues, color='blue', label = 'CPU util Dep1')
+hpa1.set_title('HPA for Deployment 1')
+hpa2.plot(hpas[1].xValues, hpas[1].setPoints, color='black', label = 'Setpoint Dep2')
+hpa2.plot(hpas[1].xValues, hpas[1].utilValues, color='green', label = 'CPU util Dep2')
+hpa2.set_title('HPA for Deployment 2')
+hpa3.plot(hpas[2].xValues, hpas[2].setPoints, color='black', label = 'Setpoint Dep3')
+hpa3.plot(hpas[2].xValues, hpas[2].utilValues, color='red', label = 'CPU util Dep3')
+hpa3.set_title('HPA for Deployment 3')
+pp.plot(stepList, depPendPods1, color = 'blue', label = 'Pending Pods Dep1')
+pp.plot(stepList, depPendPods2, color = 'green', label = 'Pending Pod Dep2')
+pp.plot(stepList, depPendPods3, color = 'red', label = 'Pending Pod Dep3')
+ap.plot(stepList, depPods1, color = 'blue', label = 'Active Pods Dep1')
+ap.plot(stepList, depPods2, color = 'green', label = 'Active Pods Dep2')
+ap.plot(stepList, depPods3, color = 'red', label = 'Active Pods Dep3')
+pr.plot(stepList, dep1PendReqs, color='blue', label = 'Pending Requests Dep1')
+pr.plot(stepList, dep1PendReqs, color='green', label = 'Pending Requests Dep2')
+pr.plot(stepList, dep1PendReqs, color='red', label = 'Pending Requests Dep3')
+for ax in fig.get_axes():
+	ax.legend()
+plt.savefig(f'graph/{SEED}_main.png')
+
+H1_Data = {
+	'time': supervisors[0].timestampAudit,
+	'Kp': supervisors[0].pValues,
+	'Ki': supervisors[0].iValues,
+	'avg_error': supervisors[0].avgErrors,
+}
+h1_df = pd.DataFrame(H1_Data,columns=['time', 'Kp', 'Ki', 'avg_error'])
+
+print(f"List of samples for {supervisors[0].hpa.deploymentLabel}")
+print(h1_df)
+
+H2_Data = {
+	'time': supervisors[1].timestampAudit,
+	'Kp': supervisors[1].pValues,
+	'Ki': supervisors[1].iValues,
+	'avg_error': supervisors[1].avgErrors
+}
+h2_df = pd.DataFrame(H2_Data,columns=['time', 'Kp', 'Ki', 'avg_error'])
+
+print(f"List of samples for {supervisors[1].hpa.deploymentLabel}")
+print(h2_df)
+
+H3_Data = {
+	'time': supervisors[2].timestampAudit,
+	'Kp': supervisors[2].pValues,
+	'Ki': supervisors[2].iValues,
+	'avg_error': supervisors[2].avgErrors
+}
+h3_df = pd.DataFrame(H3_Data,columns=['time', 'Kp', 'Ki', 'avg_error'])
+
+print(f"List of samples for {supervisors[2].hpa.deploymentLabel}")
+print(h3_df)
+
+fig, ((h1, h2, h3)) = plt.subplots(1,3, subplot_kw={"projection": "3d"}, figsize=(16, 8))
+h1.scatter(h1_df['Kp'], h1_df['Ki'], h1_df['avg_error'], color='blue')
+h1.set_xlabel('Kp')
+h1.set_ylabel('Ki')
+h1.set_zlabel('avg_error')
+h2.scatter(h2_df['Kp'], h2_df['Ki'], h2_df['avg_error'], color='blue')
+h2.set_xlabel('Kp')
+h2.set_ylabel('Ki')
+h2.set_zlabel('avg_error')
+h3.scatter(h3_df['Kp'], h3_df['Ki'], h3_df['avg_error'], color='blue')
+h3.set_xlabel('Kp')
+h3.set_ylabel('Ki')
+h3.set_zlabel('avg_error')
+
+plt.savefig(f'graph/{SEED}_errors.png')

@@ -59,12 +59,12 @@ reqHandlerThread.join()
 
 class TestEndPoints(unittest.TestCase):
 	def test_end_point_length(self):
-		self.assertEqual(len(apiServer.GetEndPointsByLabel('Deployment_AA')), 1)
+		self.assertEqual(len(apiServer.GetEndPointsByLabel('Deployment_AA')), 2)
 
 class TestPods(unittest.TestCase):
 	def test_pod_length(self):
 		self.assertEqual(len(apiServer.GetPending()), 0)
-		self.assertEqual(len(apiServer.etcd.runningPodList), 1)
+		self.assertEqual(len(apiServer.etcd.runningPodList), 2)
 
 class TestWorkers(unittest.TestCase):
     def test_node_cpus(self):

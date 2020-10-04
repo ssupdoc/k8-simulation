@@ -5,7 +5,6 @@ from src.req_handler import ReqHandler
 from src.node_controller import NodeController
 from src.scheduler import Scheduler
 from src.load_balancer import LoadBalancer
-from src.constants import LoadBalancerType
 import unittest
 import time
 
@@ -14,8 +13,8 @@ _depCtlLoop = 2
 _scheduleCtlLoop =2
 
 loadBalancers = []
-# Load balancer type ['round_robin', 'utilisation-aware']
-LOADBALANCERTYPE = LoadBalancerType.ROUND_ROBIN
+# Load balancer type ['UA', 'RR']
+LOADBALANCERTYPE = 'UA'
 
 class LoadBalancerAudit:
 	def __init__(self, loadBalancer, lbThread):
@@ -58,7 +57,7 @@ for command in commands:
 		if cmdAttributes[0] == 'Deploy':
 			apiServer.CreateDeployment(cmdAttributes[1:])
 			deployment = apiServer.GetDepByLabel(cmdAttributes[1])
-			loadBalancer = LoadBalancer(apiServer, deployment, LOADBALANCERTYPE)
+			loadBalancer = LoadBalancer(LOADBALANCERTYPE, apiServer, deployment)
 			lbThread = threading.Thread(target=loadBalancer)
 			lbThread.start()
 			loadBalancers.append(LoadBalancerAudit(loadBalancer, lbThread))
@@ -98,4 +97,5 @@ class TestPods(unittest.TestCase):
 		self.assertEqual(len(apiServer.etcd.runningPodList), 1)
 	def test_requests(self):
 		pod = apiServer.etcd.runningPodList[0]
-		self.assertEqual(len(pod.requests), 0)
+		self.assertEqual(len(pod.requests), 1)
+		self.assertEqual((all (p.done() for p in pod.requests)), True)

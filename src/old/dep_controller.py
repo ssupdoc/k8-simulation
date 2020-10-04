@@ -21,17 +21,15 @@ class DepController:
 						self.apiServer.CreatePod(deployment)
 						deployment.currentReplicas +=1
 					endPoints = self.apiServer.GetEndPointsByLabel(deployment.deploymentLabel)
-					#Remove any pending pods before terminating running ones
+					for endPoint in endPoints:
+						if deployment.currentReplicas > deployment.expectedReplicas:
+							self.apiServer.TerminatePod(endPoint)
+							deployment.currentReplicas-=1
 					for pod in self.apiServer.etcd.pendingPodList:
 						if pod.deploymentLabel == deployment.deploymentLabel:
 							if deployment.currentReplicas > deployment.expectedReplicas:
 								self.apiServer.etcd.pendingPodList.remove(pod)
 								deployment.currentReplicas-=1
-					for endPoint in endPoints:
-						#Terminate running pods if required
-						if deployment.currentReplicas > deployment.expectedReplicas:
-							self.apiServer.TerminatePod(endPoint)
-							deployment.currentReplicas-=1
 					if deployment.expectedReplicas > 0:
 						deployments.append(deployment)
 				self.apiServer.etcd.deploymentList = deployments
